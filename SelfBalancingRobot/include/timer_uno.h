@@ -383,8 +383,9 @@ void setDutyA8(float dutyA){
   /* dutyA en ms
   * funciones  específicas  actualiza el valor del duty cicle A
   */
-  OCR0A = (uint16_t)((dutyA/1000)*(F_CPU/(2*prescalerValue_T8))+1); //Numero hasta el cual cuenta para llegar al
-                                                               // tiempo del periodo de trabajo A del PWM
+  float aux = (dutyA/1000)*(F_CPU/(2*prescalerValue_T8))+1;
+  OCR0A = (uint8_t) (aux); //Numero hasta el cual cuenta para llegar al
+                                                               // tiempo del periodo de trabajo A
 }
 
 void setDutyB16(float dutyB){
@@ -399,8 +400,9 @@ void setDutyB8(float dutyB){
   /* dutyB en ms
   * funciones  específicas  actualiza el valor del duty cicle B
   */
-  OCR0B = (uint16_t)((dutyB/1000)*(F_CPU/prescalerValue_T8)+1); //Numero hasta el cual cuenta para llegar al
-                                                              // tiempo del periodo de trabajo B del PWM
+  float aux = (dutyB/1000)*(F_CPU/prescalerValue_T8)+1;
+  OCR0B = (uint8_t) (aux); //Numero hasta el cual cuenta para llegar al
+                                                              // tiempo del periodo de trabajo B
 }
 
 void setTP16(float T) {

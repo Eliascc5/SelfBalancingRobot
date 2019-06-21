@@ -52,7 +52,7 @@ int main(void){
 
 	mi_UART_Init0(9600,0,0);
 	stdout = stdin = &uart_io;  // El stream (FILE) uart_io es la E/S estandar, es decir para putc y getc
-	printf("OK\r\n");
+printf("OK\r\n");
 
 	_delay_ms(3000);
 
@@ -90,3 +90,43 @@ printf("G: %d, %d, %d\n\n", (int)x_gyro/gyrosensitivity, (int)y_gyro/gyrosensiti
 
     }
 }
+
+// #include "timer_uno.h"
+// #include <util/delay.h>
+// #include <time.h>
+// #include <stdlib.h>
+// #include <avr/interrupt.h>
+// #include <avr/io.h>
+// #include <stdio.h>
+//
+// int flag_timer0 = 0;
+//
+// ISR(TIMER0_COMPA_vect){
+//   // _delay_ms(100);
+//   flag_timer0 = 1;
+//   PORTD ^= (1<<PORTD4);
+//   TIFR0 &=~ (1<<OCF0A); //apaga flag
+// }
+// int main(int argc, char const *argv[]) {
+//   DDRD |= (1<<PORTD6) | (1<<PORTD4);
+//   // PORTD |= (1<<PORTD4);
+//   confModo_T8(2);
+//   confModoSalidas_T8(1, 0);
+//   interrupciones_T8(1,0,0);
+//   confPrescaler_T8(10);
+//   // // conf_PWM_14_TC1(1000, 100, 900);
+//   setDutyA8(10);
+//   sei();
+//   // setDutyB8(900);
+//   // TCCR0A |= (1<<WGM01);
+//   // TCCR0A |= (1<<COM0A0);
+//   // TCCR0B |= (5<<CS00);
+//   // OCR0A = (uint8_t)(255); //Numero hasta el cual cuenta para llegar al
+//   // sOLO PUEDO CONTAR HASTA 256 -> LAS FRECUENCIAS SON MAS CHICAS.
+//   while (1) {
+//       while(flag_timer0 == 0){_delay_us(1);}
+//
+//   }
+//
+//   return 0;
+// }

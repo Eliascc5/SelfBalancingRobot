@@ -32,7 +32,7 @@ TWEN-> Bit de enable de TWI
 
     uint32_t TWBR_val;
     PORTC|=((1<<4)|(1<<5));
-  	TWBR_val = ((((F_CPU / F_SCL) / Prescaler) - 16 ) / 2);  //FRECUENCIA DE SCL F_SCL (Pag 213)
+  	TWBR_val = (((F_CPU / F_SCL) - 16 ) / (Prescaler * 2));  //FRECUENCIA DE SCL F_SCL (Pag 213)
   	TWBR = (uint8_t)TWBR_val;  //Casting
   }
 

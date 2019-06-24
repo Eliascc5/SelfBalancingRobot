@@ -14,6 +14,9 @@ i2c con MPU6050
 #include <math.h>
 
 FILE uart_io = FDEV_SETUP_STREAM(mi_putc0, mi_getc0, _FDEV_SETUP_RW); // Declara un tipo stream de E/S
+#define  FG  131.0;   // = 131 LSB/degrees/sec Pag 12 datasheet
+#define  FA 16384.0; // = 16384 LSB/g         Pag 12 datasheet
+
 
 int main(void){
 
@@ -21,11 +24,8 @@ int main(void){
 	int16_t x_acel, y_acel, z_acel;
 	int16_t x_gyro, y_gyro, z_gyro;
 
-
+  float x_, y_, z_;
 	//Facores de sensibilidad
-	uint16_t  gyrosensitivity  = 131;   // = 131 LSB/degrees/sec Pag 12 datasheet
-	uint16_t  accelsensitivity = 16384; // = 16384 LSB/g         Pag 12 datasheet
-
 
 
 	i2c_init(100000UL);
@@ -56,7 +56,7 @@ printf("OK\r\n");
 
 	_delay_ms(3000);
 
-
+    char buffer[20];
     while (1) {
 			//Contiene los 8 bits mas signiticativos por eso el ACCEL_XOUT_H  (high)
 			//La aceleracion en verdad esta compuesta por 16 bits
@@ -83,10 +83,15 @@ printf("OK\r\n");
 				DEV_read16(0,MPU6050_RA_GYRO_ZOUT_L);
 
 
-printf("A: %d, %d, %d\n", (int)x_acel/accelsensitivity, (int)y_acel/accelsensitivity, (int)z_acel/accelsensitivity);
-
-printf("G: %d, %d, %d\n\n", (int)x_gyro/gyrosensitivity, (int)y_gyro/gyrosensitivity, (int)z_gyro/gyrosensitivity);
-
+// printf("A: %d, %d, %d\n", (int)x_acel/accelsensitivity, (int)y_acel/accelsensitivity, (int)z_acel/accelsensitivity);
+//
+// printf("G: %d, %d, %d\n\n", (int)x_gyro/gyrosensitivity, (int)y_gyro/gyrosensitivity, (int)z_gyro/gyrosensitivity);
+        int aa = (int) x_acel;
+        x_ = (float) aa / FA;
+        printf("Raw %d\n",x_acel );
+        sprintf(buffer," Ax = %.2f g\n",1.02);
+				
+		    printf(buffer);
 
     }
 }

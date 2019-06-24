@@ -135,6 +135,46 @@ Please refer to LICENSE file for licensing information.
 #define MPU6050_CFG_DLPF_CFG_BIT    2
 #define MPU6050_CFG_DLPF_CFG_LENGTH 3
 
+// Options:
+#define MPU6050_DLPF_BW_256         0x00
+#define MPU6050_DLPF_BW_188         0x01
+#define MPU6050_DLPF_BW_98          0x02
+#define MPU6050_DLPF_BW_42          0x03
+#define MPU6050_DLPF_BW_20          0x04
+#define MPU6050_DLPF_BW_10          0x05
+#define MPU6050_DLPF_BW_5           0x06
+
+/** Get digital low-pass filter configuration.
+ * The DLPF_CFG parameter sets the digital low pass filter configuration. It
+ * also determines the internal sampling rate used by the device as shown in
+ * the table below.
+ *
+ * Note: The accelerometer output rate is 1kHz. This means that for a Sample
+ * Rate greater than 1kHz, the same accelerometer sample may be output to the
+ * FIFO, DMP, and sensor registers more than once.
+ *
+ *
+ *          |   ACCELEROMETER    |           GYROSCOPE
+ * DLPF_CFG | Bandwidth | Delay  | Bandwidth | Delay  | Sample Rate
+ * ---------+-----------+--------+-----------+--------+-------------
+ * 0        | 260Hz     | 0ms    | 256Hz     | 0.98ms | 8kHz
+ * 1        | 184Hz     | 2.0ms  | 188Hz     | 1.9ms  | 1kHz
+ * 2        | 94Hz      | 3.0ms  | 98Hz      | 2.8ms  | 1kHz
+ * 3        | 44Hz      | 4.9ms  | 42Hz      | 4.8ms  | 1kHz
+ * 4        | 21Hz      | 8.5ms  | 20Hz      | 8.3ms  | 1kHz
+ * 5        | 10Hz      | 13.8ms | 10Hz      | 13.4ms | 1kHz
+ * 6        | 5Hz       | 19.0ms | 5Hz       | 18.6ms | 1kHz
+ * 7        |   -- Reserved --   |   -- Reserved --   | Reserved
+ *
+ *
+ * @return DLFP configuration
+ * @see MPU6050_RA_CONFIG
+ * @see MPU6050_CFG_DLPF_CFG_BIT
+ * @see MPU6050_CFG_DLPF_CFG_LENGTH
+ */
+
+#define SMPLRT_DIV 0x19
+
 #define MPU6050_EXT_SYNC_DISABLED       0x0
 #define MPU6050_EXT_SYNC_TEMP_OUT_L     0x1
 #define MPU6050_EXT_SYNC_GYRO_XOUT_L    0x2

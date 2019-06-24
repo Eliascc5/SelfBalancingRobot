@@ -20,6 +20,8 @@ UCSR0A: Registro 0A de estado y control de la UART
 
 	uint8_t mi_UART_Init0(uint16_t brate, uint8_t Txinterr,uint8_t Rxinterr){
 			UBRR0 = F_CPU/16/brate-1;						// Configura baudrate. Ver en sección UART de datasheet(PAG 173)
+			//UCSR0A|=(1<<U2X0);
+
 			UCSR0B = (1<<RXEN0)|(1<<TXEN0);			// Habilita bits TXEN0 y RXEN0 (PINES)
 			UCSR0C = (1<<USBS0)|(3<<UCSZ00);		// USBS0=1 2 bits stop, UCSZxx=3 8 bits (tamaño del caracter)
 			if (Txinterr)

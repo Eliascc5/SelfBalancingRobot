@@ -383,7 +383,7 @@ void setDutyA8(float dutyA){
   /* dutyA en ms
   * funciones  específicas  actualiza el valor del duty cicle A
   */
-  float aux = (dutyA/1000)*(F_CPU/(2*prescalerValue_T8))+1;
+  float aux = (dutyA/1000)*(F_CPU/prescalerValue_T8)+1;
   OCR0A = (uint8_t) (aux); //Numero hasta el cual cuenta para llegar al
                                                                // tiempo del periodo de trabajo A
 }

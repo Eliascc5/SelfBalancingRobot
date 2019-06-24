@@ -1,0 +1,79 @@
+#include <stdint.h>
+#include <avr/io.h>
+#include <stdio.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+#include <math.h>
+#include "gpio_register_atmega328p.h"
+
+enum tEstados_m{Start, Move_forward, Move_backward, Turn_right, Turn_left, Retain_immobile, Set_offset}estado_s;
+
+
+
+int main(int argc, char const *argv[]) {
+  estado_s = Start;
+  B5_salida;
+  B4_salida;
+  B3_salida;
+  B2_salida;
+  B1_salida;
+  B0_salida;
+  D1_salida;
+
+  while (1) {
+    switch (estado_s) {
+      case Start:
+          estado_s =Move_forward;
+            B5_encendido;
+          _delay_ms(1000);
+          break;
+      case Move_forward:
+          /*Prender un led*/
+          B4_encendido;
+          estado_s =Move_backward;
+          _delay_ms(1000);
+          break;
+      case Move_backward:
+      /*Prender un led*/
+          B3_encendido;
+          estado_s =Turn_right;
+          _delay_ms(1000);
+          break;
+      case Turn_right:
+        B2_encendido;
+          estado_s =Turn_left;
+          _delay_ms(1000);
+        /*Prender un led*/
+          break;
+      case Turn_left:
+        B1_encendido;
+          estado_s =Retain_immobile;
+          /*Prender un led*/
+          _delay_ms(1000);
+          break;
+      case Retain_immobile:
+        B0_encendido;
+          /*Prender un led*/
+          estado_s =Set_offset;
+          _delay_ms(1000);
+          break;
+      case Set_offset:
+          estado_s =Start;
+          D1_encendido;
+          _delay_ms(1000);
+          B5_apagado;
+          B4_apagado;
+          B3_apagado;
+          B2_apagado;
+          B1_apagado;
+          B0_apagado;
+          D1_apagado;
+          break;
+      default:
+          break;
+    }
+    _delay_ms(1000);
+
+  }
+  return 0;
+}

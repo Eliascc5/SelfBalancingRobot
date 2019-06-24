@@ -12,7 +12,7 @@
 
         uint8_t ack;
         while(!DEV_rdy(ad0)){
-         // Espera hasta que el sensor 0 esté listo
+          _delay_us(1);// Espera hasta que el sensor 0 esté listo
         }
         ack = i2c_start((DEV_ADDR|(ad0&7))<<1);      // Condición de START
         i2c_write(address);           // Escribe byte de dirección de registro a acceder dentro del sensor
@@ -25,7 +25,7 @@
   uint8_t DEV_write_N(uint8_t ad0, uint8_t address, uint8_t *data){
   	  uint8_t ack;
         while(!DEV_rdy(ad0)){
-          // espera hasta que el sensor m esté listo
+           _delay_us(1);// espera hasta que el sensor m esté listo
         }
         ack = i2c_start((DEV_ADDR|(ad0&7))<<1); //dir es 0 o 1 en MPU6050, pero reservamos 3 bits
         i2c_write(address);                     // escribe byte de dirección a acceder dentro del sensor
@@ -42,7 +42,7 @@
   	  uint8_t dato;
         while(!DEV_rdy(ad0))
         {
-              // espera hasta que el sensor 0 esté listo
+               _delay_us(1);// espera hasta que el sensor 0 esté listo
         }
         i2c_start((DEV_ADDR|(ad0&7))<<1); //dir es 0 o 1 en MPU6050, pero reservamos 3 bits
         i2c_write(address);                     // escribe byte de dirección a acceder dentro del sensor
@@ -57,7 +57,7 @@
   	uint16_t dato;
   	while(!DEV_rdy(ad0))
   	{
-  		// espera hasta que el sensor 0 esté listo
+  		 _delay_us(1);// espera hasta que el sensor 0 esté listo
   	}
   	i2c_start((DEV_ADDR|(ad0&7))<<1);    //dir es 0 o 1 en MPU6050, pero reservamos 3 bits
   	i2c_write(address);                 // escribe byte de dirección a acceder dentro del sensor
@@ -78,7 +78,7 @@
   	  uint8_t dato;
         while(!DEV_rdy(ad0))
         {
-              // espera hasta que el sensor m esté listo
+             _delay_us(1);  // espera hasta que el sensor m esté listo
         }
         dato=i2c_read(0);             // lee dato de i2c
         i2c_stop();                   // condición de STOP

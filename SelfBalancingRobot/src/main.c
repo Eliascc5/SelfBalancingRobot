@@ -20,7 +20,7 @@ i2c con MPU6050
 #define GYROSENSITIVITY 131.0	// = 131 LSB/degrees/sec Pag 12 datasheet
 #define ACCELSENSITIVITY 16384.0 // = 16384 LSB/g         Pag 12 datasheet
 #define RAD_TO_DEG  180/3.141592654  //Para conversion
-#define PI 3.1416
+#define PI 3.3.141592654
 
 //-------------HEADERS------------
 float getOffset_gyroX(int16_t gx_raw_, int16_t gy_raw_, int16_t gz_raw_);

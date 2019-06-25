@@ -23,9 +23,16 @@
 #define PI 3.1416
 // -------------- TIMERS ---------------
 #define TP_CONTROL_LOOP 10   //Periodo en ms para el control del robot
+/* TIMER 0*/
 #define MODE_TIMER0 3        // Modo Fast PWM timer 0
-#define MODE_OC0A 2          // OUTPUT Compare pin (OC0A) en modo toggle 1
-#define MODE_OC0B 2          // OUTPUT Compare pin (OC0B) en modo toggle 1
+#define MODE_OC0A 2          // OUTPUT Compare pin (OC0A) en modo clear 2
+#define MODE_OC0B 2          // OUTPUT Compare pin (OC0B) en modo clear 2
+#define PRESCALER_TIMER0 256
+/* TIMER 2*/
+#define MODE_TIMER2 3        // Modo Fast PWM timer 2
+#define MODE_OC2A 2          // OUTPUT Compare pin (OC2A) en modo clear 2
+#define MODE_OC2B 2          // OUTPUT Compare pin (OC2B) en modo clear 2
+#define PRESCALER_TIMER2 256
 // volatile unsigned long timer0_millis = 0;
 
 
@@ -64,16 +71,29 @@ int main(void) {
 	printf("OK\r\n");
 
 //-----------------------------------------//
-//----- Timer 8bit para temporizacion -----//
+//----- Timer 8bit 2 para temporizacion -----//
 //-----------------------------------------//
-  D5_salida;
-  D6_apagado;
-  confModo_T8(3);
-  confModoSalidas_T8(MODE_OC0A, 2);
-  interrupciones_T8(0,0,0);
-  confPrescaler_T8(10);
-  setDutyA8(1000);
-  setDutyB8(10);
+  D3_salida;
+  B3_apagado;
+  confModo_T8(MODE_TIMER2,2);
+  confModoSalidas_T8(MODE_OC2A, MODE_OC2B,2);
+  interrupciones_T8(0,0,0,2);
+  confPrescaler_T8(PRESCALER_TIMER2,2);
+  setDutyA2(0);
+  setDutyB2(0);
+
+//-----------------------------------------//
+//----- Timer 8bit 0 para temporizacion -----//
+//-----------------------------------------//
+  D6_salida;
+  D5_apagado;
+  confModo_T8(MODE_TIMER0,0);
+  confModoSalidas_T8(MODE_OC0A, MODE_OC0B,0);
+  interrupciones_T8(0,0,0,0);
+  confPrescaler_T8(PRESCALER_TIMER0,0);
+  setDutyA0(0);
+  setDutyB0(0);
+
 //-----------------------------------------//
 //-----     Timer 16bit para PWM      -----//
 //-----------------------------------------//

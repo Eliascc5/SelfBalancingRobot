@@ -3,6 +3,7 @@
 	#define DEV_ADDR 0x68
 #endif
 #include <stdint.h>
+#include <util/delay.h>
 uint8_t DEV_rdy(uint8_t ad0);
 uint8_t DEV_write(uint8_t ad0, uint8_t address, uint8_t dato);
 uint8_t DEV_write_N(uint8_t ad0, uint8_t address, uint8_t *data);

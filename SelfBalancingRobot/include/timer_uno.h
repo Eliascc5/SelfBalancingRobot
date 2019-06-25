@@ -289,31 +289,31 @@
     TCCR0A &=~ (3<<COM0A0);
     TCCR0A &=~ (3<<COM0B0);
     switch (outA) {
-      case 0: //OC1A off
+      case 0: //OC0A off
             TCCR0A &=~ (3<<COM0A0);
             break;
-      case 1: //OC1A toggle
+      case 1: //OC0A toggle
             TCCR0A |= (1<<COM0A0);
             break;
-      case 2: //OC1A clear
+      case 2: //OC0A clear
             TCCR0A |= (1<<COM0A1);
             break;
-      case 3: //OC1A set
+      case 3: //OC0A set
             TCCR0A |= (3<<COM0A0);
       default :
               return 1;
     }
     switch (outB) {
-      case 0: //OC1B off
+      case 0: //OC0B off
             TCCR0A &=~ (3<<COM0B0);
             break;
-      case 1: //OC1B toggle
+      case 1: //OC0B toggle
             TCCR0A |= (1<<COM0B0);
             break;
-      case 2: //OC1B clear
+      case 2: //OC0B clear
             TCCR0A |= (1<<COM0B1);
             break;
-      case 3: //OC1B set
+      case 3: //OC0B set
             TCCR0A |= (3<<COM0B0);
       default :
               return 1;
@@ -385,7 +385,7 @@
     /* dutyA en ms
     * funciones  específicas  actualiza el valor del duty cicle A
     */
-    float aux = (dutyA/1000)*(F_CPU/prescalerValue_T8)+1;
+    float aux = (dutyA/100)*(F_CPU/prescalerValue_T8)+1;
     OCR0A = (uint8_t) (aux); //Numero hasta el cual cuenta para llegar al
                                                                  // tiempo del periodo de trabajo A
   }

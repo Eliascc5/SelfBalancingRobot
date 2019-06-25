@@ -14,6 +14,7 @@
 #include "UART_ATmega0.h"
 #include "pid.h"
 #include "gpio_register_atmega328p.h"
+#include "processing_data.h"
 #define DEV_ADDR 0x68			// Direccion estandar de MPU
 
 //-------------- MPU6050 ----------------
@@ -21,6 +22,7 @@
 #define ACCELSENSITIVITY 16384.0 // = 16384 LSB/g         Pag 12 datasheet
 #define RAD_TO_DEG  180/3.141592654  //Para conversion
 #define PI 3.1416
+#define SETPOINT 90 		//PARA LA ORIENTACION en la que ubicamos el sensor
 // -------------- TIMERS ---------------
 #define TP_CONTROL_LOOP 10   //Periodo en ms para el control del robot
 #define MODE_TIMER0 3        // Modo Fast PWM timer 0
@@ -82,14 +84,16 @@ int main(void) {
   // double u = 0; //Accion de control (salida del pid)
 
   while (1) {
-    // if (flag_timer0){
-    //
-    //   // double AnguloPID=getAngulo();
-    //   //
-    //   // u = pid(u);
-    //   //
-    //   // flag_timer0 = 0;
-    // }
+    //if (flag_timer0){
+
+      double AnguloPID = getAngulo();
+
+			double error = AnguloPID - SETPOINT;
+
+      double outPID = pid(error);
+
+      //flag_timer0 = 0;
+    //}
   }
 
 

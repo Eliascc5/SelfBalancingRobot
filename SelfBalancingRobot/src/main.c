@@ -102,7 +102,8 @@ sei();
   setDutyA16(10);
 
   // double u = 0; //Accion de control (salida del pid)
-
+	setSamplingTime(10);
+	setControllerGains(0.3, 0.01 ,0.3);  //kp -- ki -- kd
   while (1) {
     while (flag_timer1) { _delay_us(1);}
       printf("%d\n",flag_timer1 );
@@ -114,6 +115,7 @@ sei();
 			// double error = AnguloPID - SETPOINT;
       //
       // double outPID = pid(error);
+
 
 			// //Casting to print
 			// int mistake =(int)error;

@@ -17,12 +17,7 @@
 #include "processing_data.h"
 #define DEV_ADDR 0x68			// Direccion estandar de MPU
 
-//-------------- MPU6050 ----------------
-#define GYROSENSITIVITY 131.0	// = 131 LSB/degrees/sec Pag 12 datasheet
-#define ACCELSENSITIVITY 16384.0 // = 16384 LSB/g         Pag 12 datasheet
-#define RAD_TO_DEG  180/3.141592654  //Para conversion
-#define PI 3.1416
-#define SETPOINT 90 		//PARA LA ORIENTACION en la que ubicamos el sensor
+
 // -------------- TIMERS ---------------
 #define TP_CONTROL_LOOP 10   //Periodo en ms para el control del robot
 #define MODE_TIMER0 3        // Modo Fast PWM timer 0
@@ -44,19 +39,19 @@ int main(void) {
 //-----------------------------------------//
 //-----    CONFIGURACION I2C Y MPU    -----//
 //-----------------------------------------//
-//   int16_t ax_raw=0, ay_raw=0, az_raw=0,gx_raw=0, gy_raw=0, gz_raw=0;
-//
-//   i2c_init(100000UL);
-// 	_delay_ms(10);
-//
-// 	DEV_write(0,MPU6050_RA_PWR_MGMT_1, MPU6050_RA_ZA_OFFS_L_TC);		// Activa MPU
-// 	DEV_write(0,MPU6050_RA_CONFIG, MPU6050_DLPF_BW_10);			// filtro LP 10hz (se configura con mpu_6050.h )  DLPF-> Digital low pass filter
-// 	//DEV_write(0, SMPLRT_DIV, 0x04);
-//
-// //Configuracion del gyroscopo FS_SEL  "Full scale range" Segun tabla de mapa de registros PAG 14.
-// 	DEV_write(0,MPU6050_RA_GYRO_CONFIG, MPU6050_GYRO_FS_250 );   //+-250°/s
-// //Configuracion del gyroscopo FS_SEL  "Full scale range" Segun tabla de mapa de registros PAG 14.
-// 	DEV_write(0,MPU6050_RA_ACCEL_CONFIG, MPU6050_ACCEL_FS_2); //+-2g
+
+
+  i2c_init(100000UL);
+	_delay_ms(10);
+
+	DEV_write(0,MPU6050_RA_PWR_MGMT_1, MPU6050_RA_ZA_OFFS_L_TC);		// Activa MPU
+	DEV_write(0,MPU6050_RA_CONFIG, MPU6050_DLPF_BW_10);			// filtro LP 10hz (se configura con mpu_6050.h )  DLPF-> Digital low pass filter
+	//DEV_write(0, SMPLRT_DIV, 0x04);
+
+//Configuracion del gyroscopo FS_SEL  "Full scale range" Segun tabla de mapa de registros PAG 14.
+	DEV_write(0,MPU6050_RA_GYRO_CONFIG, MPU6050_GYRO_FS_250 );   //+-250°/s
+//Configuracion del gyroscopo FS_SEL  "Full scale range" Segun tabla de mapa de registros PAG 14.
+	DEV_write(0,MPU6050_RA_ACCEL_CONFIG, MPU6050_ACCEL_FS_2); //+-2g
 
 //-----------------------------------------//
 //-----      CONFIGURACION USART      -----//
@@ -68,14 +63,14 @@ int main(void) {
 //-----------------------------------------//
 //----- Timer 8bit para temporizacion -----//
 //-----------------------------------------//
-  D5_salida;
-  D6_apagado;
-  confModo_T8(3);
-  confModoSalidas_T8(MODE_OC0A, 2);
-  interrupciones_T8(0,0,0);
-  confPrescaler_T8(10);
-  setDutyA8(1000);
-  setDutyB8(10);
+  // D5_salida;
+  // D6_apagado;
+  // confModo_T8(3);
+  // confModoSalidas_T8(MODE_OC0A, 2);
+  // interrupciones_T8(0,0,0);
+  // confPrescaler_T8(10);
+  // setDutyA8(1000);
+  // setDutyB8(10);
 //-----------------------------------------//
 //-----     Timer 16bit para PWM      -----//
 //-----------------------------------------//
@@ -91,6 +86,10 @@ int main(void) {
 			double error = AnguloPID - SETPOINT;
 
       double outPID = pid(error);
+
+			//Casting to print 
+			int mistake =(int)error;
+			printf("%d\n",mistake);
 
       //flag_timer0 = 0;
     //}

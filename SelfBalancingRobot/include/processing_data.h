@@ -11,17 +11,23 @@
 #include <avr/interrupt.h>
 #include <math.h>
 
+
 //-------------- MPU6050 ----------------
 #define GYROSENSITIVITY 131.0	// = 131 LSB/degrees/sec Pag 12 datasheet
 #define ACCELSENSITIVITY 16384.0 // = 16384 LSB/g         Pag 12 datasheet
 #define RAD_TO_DEG  180/3.141592654  //Para conversion
 #define PI 3.1416
 #define PERIOD_MPU 0.00001   //Frecuencia de operacion 100kHz
+#define SETPOINT 90 		//PARA LA ORIENTACION en la que ubicamos el sensor
 
 
 double getAngulo(){
 
 int16_t ax_raw=0, ay_raw=0, az_raw=0,gx_raw=0, gy_raw=0, gz_raw=0;
+
+double ax_angle ,ay_angle, gx_angle, gy_angle;
+//double anguloX=0;
+double anguloY=90;
 
 
 //Contiene los 8 bits mas signiticativos por eso el ACCEL_XOUT_H  (high)

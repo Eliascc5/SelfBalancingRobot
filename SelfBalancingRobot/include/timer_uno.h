@@ -21,12 +21,14 @@
   void setTP16(float T);
 
   /* Configuracion para timer 8 bits*/
-  int confPrescaler_T8(float T);
-  int confModo_T8(uint8_t modo);
-  int confModoSalidas_T8(uint8_t outA, uint8_t outB);
-  int interrupciones_T8(uint8_t OutputCaptA, uint8_t OutputCaptB, uint8_t Overflow);
-  void setDutyA8(float dutyA);
-  void setDutyB8(float dutyB);
+  int confPrescaler_T8(uint16_t Pres, int n);
+  int confModo_T8(uint8_t modo, int n);
+  int confModoSalidas_T8(uint8_t outA, uint8_t outB, int n);
+  int interrupciones_T8(uint8_t OutputCaptA, uint8_t OutputCaptB, uint8_t Overflow, int n);
+  void setDutyA0(float dutyA);
+  void setDutyB0(float dutyB);
+  void setDutyA2(float dutyA);
+  void setDutyB2(float dutyB);
 
   /**
   * CSn2 CSn1 CSn0
@@ -78,43 +80,75 @@
   return 0;
   }
 
-  int confPrescaler_T8(float T) {
+  int confPrescaler_T8(uint16_t Pres, int n) {
   /**
   *   Funcion que setear el prescalaer para un timer de 16bits dado
-  *   @param T: tiempo en ms que se quiere obtener
+  *   @param Pres: Valor deseado del prescalerValue_T8
   *   @returns 0/1 : 0 si todo funciono 1 si algo anda mal
   */
-    T = (float)(T/1000.0);
-    float aux = (float)(pow(2, 8)/F_CPU); //Maximo Tiempo en s que se puede llegar
-    if      (T <= aux)      prescalerValue_T8 = 1;
-    else if (T <= 8 * aux)  prescalerValue_T8 = 8;
-    else if (T <= 64 * aux)  prescalerValue_T8 = 64;
-    else if (T <= 256 * aux)  prescalerValue_T8 = 256;
-    else if (T <= 1024 * aux)  prescalerValue_T8 = 1024;
-    else if (T > 1024 * aux) return 1; //Se puede probar si anda con return 2 para codificar el error
-    TCCR0B &=~ (7<<CS00); //Coloco en 0 todo el registro TCCRXB (Reset de la configuracion)
+    // T = (float)(T/1000.0);
+    // float aux = (float)(pow(2, 8)/F_CPU); //Maximo Tiempo en s que se puede llegar
+    // if      (T <= aux)      prescalerValue_T8 = 1;
+    // else if (T <= 8 * aux)  prescalerValue_T8 = 8;
+    // else if (T <= 64 * aux)  prescalerValue_T8 = 64;
+    // else if (T <= 256 * aux)  prescalerValue_T8 = 256;
+    // else if (T <= 1024 * aux)  prescalerValue_T8 = 1024;
+    // else if (T > 1024 * aux) return 1; //Se puede probar si anda con return 2 para codificar el error
+    prescalerValue_T8 = Pres;
 
-    switch (prescalerValue_T8) {
-      case 0: //timer off
-            TCCR0B &=~ (7<<CS00); //Coloco en 0 todo el registro TCCRXB
-            break;
-      case 1:
-            TCCR0B |= (1<<CS00);
-            break;
-      case 8:
-            TCCR0B |= (2<<CS00);
-            break;
-      case 64:
-            TCCR0B |= (3<<CS00);
-            break;
-      case 256:
-            TCCR0B |= (4<<CS00);
-            break;
-      case 1024:
-            TCCR0B |= (5<<CS00);
-            break;
+    switch (n) {
+      case 0:
+          TCCR0B &=~ (7<<CS00); //Coloco en 0 todo el registro TCCRXB (Reset de la configuracion)
+          switch (prescalerValue_T8) {
+            case 0: //timer off
+                  TCCR0B &=~ (7<<CS00); //Coloco en 0 todo el registro TCCRXB
+                  break;
+            case 1:
+                  TCCR0B |= (1<<CS00);
+                  break;
+            case 8:
+                  TCCR0B |= (2<<CS00);
+                  break;
+            case 64:
+                  TCCR0B |= (3<<CS00);
+                  break;
+            case 256:
+                  TCCR0B |= (4<<CS00);
+                  break;
+            case 1024:
+                  TCCR0B |= (5<<CS00);
+                  break;
+            default:
+                  return 1;
+          }
+          break;
+      case 2:
+          TCCR2B &=~ (7<<CS20); //Coloco en 0 todo el registro TCCRXB (Reset de la configuracion)
+          switch (prescalerValue_T8) {
+            case 0: //timer off
+                  TCCR2B &=~ (7<<CS20); //Coloco en 0 todo el registro TCCRXB
+                  break;
+            case 1:
+                  TCCR2B |= (1<<CS20);
+                  break;
+            case 8:
+                  TCCR2B |= (2<<CS20);
+                  break;
+            case 64:
+                  TCCR2B |= (3<<CS20);
+                  break;
+            case 256:
+                  TCCR2B |= (4<<CS20);
+                  break;
+            case 1024:
+                  TCCR2B |= (5<<CS20);
+                  break;
+            default:
+                  return 1;
+          }
+          break;
       default:
-            return 1;
+          return 1;
     }
   return 0;
   }
@@ -192,46 +226,89 @@
   return 0;
   }
 
-  int confModo_T8(uint8_t modo) {
+  int confModo_T8(uint8_t modo, int n) {
   /**
   * Función para selección del modo de uso de timer
   * @param modo: modo del timer a usar 0-15
   * @returns 0/1 : 0 si todo funciono 1 si algo anda mal
   */
-      TCCR0A &=~ (3<<WGM00);
-      TCCR0B &=~ (1<<WGM02);
-      switch (modo) {
-        case 0:
-              TCCR0A &=~ (3<<WGM00);
-              TCCR0B &=~ (1<<WGM02);
-              break;
-        case 1:
-              TCCR0A |= (1<<WGM00);
-              break;
-        case 2:
-              TCCR0A |= (1<<WGM01);
-              break;
-        case 3:
-              TCCR0A |= (3<<WGM00);
-              break;
-        case 4:
-              TCCR0B |= (1<<WGM02);
-              break;
-        case 5:
-              TCCR0A |= (1<<WGM00);
-              TCCR0B |= (1<<WGM02);
-              break;
-        case 6:
-              TCCR0A |= (1<<WGM01);
-              TCCR0B |= (1<<WGM02);
-              break;
-        case 7:
-              TCCR0A |= (3<<WGM00);
-              TCCR0B |= (1<<WGM02);
-              break;
-        default :
-              return 1;
-      }
+
+    switch (n) {
+      case 0:
+            TCCR0A &=~ (3<<WGM00);
+            TCCR0B &=~ (1<<WGM02);
+            switch (modo) {
+              case 0:
+                    TCCR0A &=~ (3<<WGM00);
+                    TCCR0B &=~ (1<<WGM02);
+                    break;
+              case 1:
+                    TCCR0A |= (1<<WGM00);
+                    break;
+              case 2:
+                    TCCR0A |= (1<<WGM01);
+                    break;
+              case 3:
+                    TCCR0A |= (3<<WGM00);
+                    break;
+              case 4:
+                    TCCR0B |= (1<<WGM02);
+                    break;
+              case 5:
+                    TCCR0A |= (1<<WGM00);
+                    TCCR0B |= (1<<WGM02);
+                    break;
+              case 6:
+                    TCCR0A |= (1<<WGM01);
+                    TCCR0B |= (1<<WGM02);
+                    break;
+              case 7:
+                    TCCR0A |= (3<<WGM00);
+                    TCCR0B |= (1<<WGM02);
+                    break;
+              default :
+                    return 1;
+            }
+            break;
+      case 2:
+            TCCR2A &=~ (3<<WGM20);
+            TCCR2B &=~ (1<<WGM22);
+            switch (modo) {
+              case 0:
+                    TCCR2A &=~ (3<<WGM20);
+                    TCCR2B &=~ (1<<WGM22);
+                    break;
+              case 1:
+                    TCCR2A |= (1<<WGM20);
+                    break;
+              case 2:
+                    TCCR2A |= (1<<WGM21);
+                    break;
+              case 3:
+                    TCCR2A |= (3<<WGM20);
+                    break;
+              case 4:
+                    TCCR2B |= (1<<WGM22);
+                    break;
+              case 5:
+                    TCCR2A |= (1<<WGM20);
+                    TCCR2B |= (1<<WGM22);
+                    break;
+              case 6:
+                    TCCR2A |= (1<<WGM21);
+                    TCCR2B |= (1<<WGM22);
+                    break;
+              case 7:
+                    TCCR2A |= (3<<WGM20);
+                    TCCR2B |= (1<<WGM22);
+                    break;
+              default :
+                    return 1;
+            }
+            break;
+      default:
+            return 1;
+    }
   return 0;
   }
 
@@ -278,7 +355,7 @@
   return 0;
   }
 
-  int confModoSalidas_T8(uint8_t outA, uint8_t outB){
+  int confModoSalidas_T8(uint8_t outA, uint8_t outB, int n){
   /**
   * Nota: los pines asociados a la temporización que se deseen utilizar con algún modo de salida, deben ser declarados como salidas por código antes de habilitar el timer
   * Función para selección del modo de las salidas del timer
@@ -286,38 +363,79 @@
   * @param outB: modo salida B
   * @returns 0/1 : 0 si todo funciono 1 si algo anda mal
   */
-    TCCR0A &=~ (3<<COM0A0);
-    TCCR0A &=~ (3<<COM0B0);
-    switch (outA) {
-      case 0: //OC0A off
-            TCCR0A &=~ (3<<COM0A0);
-            break;
-      case 1: //OC0A toggle
-            TCCR0A |= (1<<COM0A0);
-            break;
-      case 2: //OC0A clear
-            TCCR0A |= (1<<COM0A1);
-            break;
-      case 3: //OC0A set
-            TCCR0A |= (3<<COM0A0);
-      default :
-              return 1;
-    }
-    switch (outB) {
-      case 0: //OC0B off
-            TCCR0A &=~ (3<<COM0B0);
-            break;
-      case 1: //OC0B toggle
-            TCCR0A |= (1<<COM0B0);
-            break;
-      case 2: //OC0B clear
-            TCCR0A |= (1<<COM0B1);
-            break;
-      case 3: //OC0B set
-            TCCR0A |= (3<<COM0B0);
-      default :
-              return 1;
-    }
+  switch (n) {
+    case 0:
+          TCCR0A &=~ (3<<COM0A0);
+          TCCR0A &=~ (3<<COM0B0);
+          switch (outA) {
+            case 0: //OC0A off
+                  TCCR0A &=~ (3<<COM0A0);
+                  break;
+            case 1: //OC0A toggle
+                  TCCR0A |= (1<<COM0A0);
+                  break;
+            case 2: //OC0A clear
+                  TCCR0A |= (1<<COM0A1);
+                  break;
+            case 3: //OC0A set
+                  TCCR0A |= (3<<COM0A0);
+            default :
+                    return 1;
+          }
+          switch (outB) {
+            case 0: //OC0B off
+                  TCCR0A &=~ (3<<COM0B0);
+                  break;
+            case 1: //OC0B toggle
+                  TCCR0A |= (1<<COM0B0);
+                  break;
+            case 2: //OC0B clear
+                  TCCR0A |= (1<<COM0B1);
+                  break;
+            case 3: //OC0B set
+                  TCCR0A |= (3<<COM0B0);
+            default :
+                    return 1;
+          }
+          break;
+    case 2:
+          TCCR2A &=~ (3<<COM2A0);
+          TCCR2A &=~ (3<<COM2B0);
+          switch (outA) {
+            case 0: //OC2A off
+                  TCCR2A &=~ (3<<COM2A0);
+                  break;
+            case 1: //OC2A toggle
+                  TCCR2A |= (1<<COM2A0);
+                  break;
+            case 2: //OC2A clear
+                  TCCR2A |= (1<<COM2A1);
+                  break;
+            case 3: //OC2A set
+                  TCCR2A |= (3<<COM2A0);
+            default :
+                    return 1;
+          }
+          switch (outB) {
+            case 0: //OC2B off
+                  TCCR2A &=~ (3<<COM2B0);
+                  break;
+            case 1: //OC2B toggle
+                  TCCR2A |= (1<<COM2B0);
+                  break;
+            case 2: //OC2B clear
+                  TCCR2A |= (1<<COM2B1);
+                  break;
+            case 3: //OC2B set
+                  TCCR2A |= (3<<COM2B0);
+            default :
+                    return 1;
+          }
+          break;
+    default:
+          return 1;
+  }
+
   return 0;
   }
 
@@ -349,7 +467,7 @@
   return 0;
   }
 
-  int interrupciones_T8(uint8_t OutputCaptA, uint8_t OutputCaptB, uint8_t Overflow){
+  int interrupciones_T8(uint8_t OutputCaptA, uint8_t OutputCaptB, uint8_t Overflow, int n){
   /*
   * función para la habilitación opcional de las distintas fuentes de interrupción disponibles
   * @param InputCapt: activa interrupciones por InputCapt
@@ -358,18 +476,39 @@
   * @parm Overflow: activa interrupción por Overflow
   * @returns 0/1: si todo marcha bien/mal
   */
-      if (OutputCaptA) {
-        TIFR0 &=~ (1<<OCF0A); //apaga flag
-        TIMSK0 |= (1<<OCIE0A); //habilita interrupcion
-      }
-      if (OutputCaptB) {
-        TIFR0 &=~ (1<<OCF0B); //apaga flag
-        TIMSK0 |= (1<<OCIE0B); //habilita interrupcion
-      }
-      if (Overflow) {
-        TIFR0 &=~ (1<<TOV0); //apaga flag
-        TIMSK0 |= (1<<TOIE0); //habilita interrupcion
-      }
+    switch (n) {
+      case 0:
+            if (OutputCaptA) {
+              TIFR0 &=~ (1<<OCF0A); //apaga flag
+              TIMSK0 |= (1<<OCIE0A); //habilita interrupcion
+            }
+            if (OutputCaptB) {
+              TIFR0 &=~ (1<<OCF0B); //apaga flag
+              TIMSK0 |= (1<<OCIE0B); //habilita interrupcion
+            }
+            if (Overflow) {
+              TIFR0 &=~ (1<<TOV0); //apaga flag
+              TIMSK0 |= (1<<TOIE0); //habilita interrupcion
+            }
+            break;
+      case 2:
+            if (OutputCaptA) {
+              TIFR2 &=~ (1<<OCF2A); //apaga flag
+              TIMSK2 |= (1<<OCIE2A); //habilita interrupcion
+            }
+            if (OutputCaptB) {
+              TIFR2 &=~ (1<<OCF2B); //apaga flag
+              TIMSK2 |= (1<<OCIE2B); //habilita interrupcion
+            }
+            if (Overflow) {
+              TIFR2 &=~ (1<<TOV2); //apaga flag
+              TIMSK2 |= (1<<TOIE2); //habilita interrupcion
+            }
+            break;
+      default:
+            return 1;
+    }
+
   return 0;
   }
 
@@ -381,14 +520,26 @@
                                                                  // tiempo del periodo de trabajo A del PWM
   }
 
-  void setDutyA8(float dutyA){
-    /* dutyA en ms
+  void setDutyA0(float dutyA){
+    /* dutyA en porcentaje
     * funciones  específicas  actualiza el valor del duty cicle A
     */
-    float aux = (dutyA/100)*(F_CPU/prescalerValue_T8)+1;
+    float aux = (dutyA/100)*(256);
+
     OCR0A = (uint8_t) (aux); //Numero hasta el cual cuenta para llegar al
                                                                  // tiempo del periodo de trabajo A
   }
+
+  void setDutyA2(float dutyA){
+    /* dutyA en porcentaje
+    * funciones  específicas  actualiza el valor del duty cicle A
+    */
+    float aux = (dutyA/100)*(256);
+
+    OCR2A = (uint8_t) (aux); //Numero hasta el cual cuenta para llegar al
+                                                                 // tiempo del periodo de trabajo A
+  }
+
 
   void setDutyB16(float dutyB){
     /* dutyB en ms
@@ -398,13 +549,22 @@
                                                                 // tiempo del periodo de trabajo B del PWM
   }
 
-  void setDutyB8(float dutyB){
-    /* dutyB en ms
+  void setDutyB0(float dutyB){
+    /* dutyB en porcentaje
     * funciones  específicas  actualiza el valor del duty cicle B
     */
-    float aux = (dutyB/1000)*(F_CPU/prescalerValue_T8)+1;
+    float aux =  (dutyB/100) * 256;
     OCR0B = (uint8_t) (aux); //Numero hasta el cual cuenta para llegar al
                                                                 // tiempo del periodo de trabajo B
+  }
+
+  void setDutyB2(float dutyB){
+    /* dutyB en porcentaje
+    * funciones  específicas  actualiza el valor del duty cicle B
+    */
+    float aux =  (dutyB/100) * 256;
+    OCR2B = (uint8_t) (aux); //Numero hasta el cual cuenta para llegar al
+                                                      // tiempo del periodo de trabajo B
   }
 
   void setTP16(float T) {

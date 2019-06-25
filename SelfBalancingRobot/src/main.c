@@ -77,7 +77,8 @@ int main(void) {
 
 
   // double u = 0; //Accion de control (salida del pid)
-
+	setSamplingTime(10);
+	setControllerGains(0.3, 0.01 ,0.3);  //kp -- ki -- kd
   while (1) {
     //if (flag_timer0){
 
@@ -87,9 +88,10 @@ int main(void) {
 
       double outPID = pid(error);
 
-			//Casting to print 
-			int mistake =(int)error;
-			printf("%d\n",mistake);
+			//Casting to print
+			int salidaPID =(int)outPID*10;
+			printf("%d\n",salidaPID);
+			_delay_ms(10);
 
       //flag_timer0 = 0;
     //}

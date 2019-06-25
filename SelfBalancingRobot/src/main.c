@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <math.h>
-
+#include <time.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
 
@@ -34,11 +34,12 @@
 
 
 FILE uart_io = FDEV_SETUP_STREAM(mi_putc0, mi_getc0, _FDEV_SETUP_RW); // Declara un tipo stream de E/S
+
 /*Interrupcion del timer y flag para temporizacion*/
-// int flag_timer0 = 0;
-// ISR(TIMER0_COMPA_vect){
-//     flag_timer0 = 1;
-// }
+int flag_timer1 = 1;
+ISR(TIMER1_COMPA_vect){
+    flag_timer1 = 0;
+}
 /*------------------------------------------------*/
 
 int main(void) {
@@ -46,7 +47,7 @@ int main(void) {
 //-----------------------------------------//
 //-----    CONFIGURACION I2C Y MPU    -----//
 //-----------------------------------------//
-
+sei();
 
   i2c_init(100000UL);
 	_delay_ms(10);
@@ -68,9 +69,8 @@ int main(void) {
 	printf("OK\r\n");
 
 //-----------------------------------------//
-//----- Timer 8bit 2 para temporizacion -----//
+//----- Timer 8bit 2 para PWM         -----//
 //-----------------------------------------//
-<<<<<<< HEAD
   D3_salida;
   B3_apagado;
   confModo_T8(MODE_TIMER2,2);
@@ -81,7 +81,7 @@ int main(void) {
   setDutyB2(0);
 
 //-----------------------------------------//
-//----- Timer 8bit 0 para temporizacion -----//
+//----- Timer 8bit 0 para PWM         -----//
 //-----------------------------------------//
   D6_salida;
   D5_apagado;
@@ -92,38 +92,31 @@ int main(void) {
   setDutyA0(0);
   setDutyB0(0);
 
-=======
-  // D5_salida;
-  // D6_apagado;
-  // confModo_T8(3);
-  // confModoSalidas_T8(MODE_OC0A, 2);
-  // interrupciones_T8(0,0,0);
-  // confPrescaler_T8(10);
-  // setDutyA8(1000);
-  // setDutyB8(10);
->>>>>>> 2cc97e077ad5b692b48fd562e6bd3820b5e55666
 //-----------------------------------------//
-//-----     Timer 16bit para PWM      -----//
+//-----     Timer 16bit para temporizacion      -----//
 //-----------------------------------------//
-
+  confModo_T16(4);
+  confPrescaler_T16(10);
+  confModoSalidas_T16(1, 0);
+  interrupciones_T16(0, 1, 0, 0);
+  setDutyA16(10);
 
   // double u = 0; //Accion de control (salida del pid)
 
   while (1) {
-    //if (flag_timer0){
+    while (flag_timer1) { _delay_us(1);}
+      printf("%d\n",flag_timer1 );
+      flag_timer1 = 1;
 
-      double AnguloPID = getAngulo();
 
-			double error = AnguloPID - SETPOINT;
+      // double AnguloPID = getAngulo();
+      //
+			// double error = AnguloPID - SETPOINT;
+      //
+      // double outPID = pid(error);
 
-      double outPID = pid(error);
-
-			//Casting to print 
-			int mistake =(int)error;
-			printf("%d\n",mistake);
-
-      //flag_timer0 = 0;
-    //}
+			// //Casting to print
+			// int mistake =(int)error;
   }
 
 

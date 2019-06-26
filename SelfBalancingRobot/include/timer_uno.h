@@ -25,10 +25,10 @@
   int confModo_T8(uint8_t modo, int n);
   int confModoSalidas_T8(uint8_t outA, uint8_t outB, int n);
   int interrupciones_T8(uint8_t OutputCaptA, uint8_t OutputCaptB, uint8_t Overflow, int n);
-  void setDutyA0(float dutyA);
-  void setDutyB0(float dutyB);
-  void setDutyA2(float dutyA);
-  void setDutyB2(float dutyB);
+  void setDutyA0(uint8_t dutyA);
+  void setDutyB0(uint8_t dutyB);
+  void setDutyA2(uint8_t dutyA);
+  void setDutyB2(uint8_t dutyB);
 
   /**
   * CSn2 CSn1 CSn0
@@ -516,27 +516,25 @@
     /* dutyA en ms
     * funciones  específicas  actualiza el valor del duty cicle A
     */
-    OCR1A = (uint16_t)((dutyA/1000)*(F_CPU/prescalerValue_T16)+1); //Numero hasta el cual cuenta para llegar al
+    OCR1A = (uint16_t)((dutyA/1000.0)*(F_CPU/prescalerValue_T16)-1); //Numero hasta el cual cuenta para llegar al
                                                                  // tiempo del periodo de trabajo A del PWM
   }
 
-  void setDutyA0(float dutyA){
+  void setDutyA0(uint8_t dutyA){
     /* dutyA en porcentaje
     * funciones  específicas  actualiza el valor del duty cicle A
     */
-    float aux = (dutyA/100)*(256);
-
-    OCR0A = (uint8_t) (aux); //Numero hasta el cual cuenta para llegar al
+    // float aux = (dutyA/100.0)*(255);
+    OCR0A = dutyA;//(uint8_t) (aux); //Numero hasta el cual cuenta para llegar al
                                                                  // tiempo del periodo de trabajo A
   }
 
-  void setDutyA2(float dutyA){
+  void setDutyA2(uint8_t dutyA){
     /* dutyA en porcentaje
     * funciones  específicas  actualiza el valor del duty cicle A
     */
-    float aux = (dutyA/100)*(256);
-
-    OCR2A = (uint8_t) (aux); //Numero hasta el cual cuenta para llegar al
+    // float aux = (dutyA/100.0)*(255);
+    OCR2A = dutyA;//(uint8_t) (aux); //Numero hasta el cual cuenta para llegar al
                                                                  // tiempo del periodo de trabajo A
   }
 
@@ -545,25 +543,25 @@
     /* dutyB en ms
     * funciones  específicas  actualiza el valor del duty cicle B
     */
-    OCR1B = (uint16_t)((dutyB/1000)*(F_CPU/prescalerValue_T16)+1); //Numero hasta el cual cuenta para llegar al
+    OCR1B = (uint16_t)((dutyB/1000.0)*(F_CPU/prescalerValue_T16)-1); //Numero hasta el cual cuenta para llegar al
                                                                 // tiempo del periodo de trabajo B del PWM
   }
 
-  void setDutyB0(float dutyB){
+  void setDutyB0(uint8_t dutyB){
     /* dutyB en porcentaje
     * funciones  específicas  actualiza el valor del duty cicle B
     */
-    float aux =  (dutyB/100) * 256;
-    OCR0B = (uint8_t) (aux); //Numero hasta el cual cuenta para llegar al
+    // float aux =  (dutyB/100.0) * 255;
+    OCR0B = dutyB;//(uint8_t) (aux); //Numero hasta el cual cuenta para llegar al
                                                                 // tiempo del periodo de trabajo B
   }
 
-  void setDutyB2(float dutyB){
+  void setDutyB2(uint8_t dutyB){
     /* dutyB en porcentaje
     * funciones  específicas  actualiza el valor del duty cicle B
     */
-    float aux =  (dutyB/100) * 256;
-    OCR2B = (uint8_t) (aux); //Numero hasta el cual cuenta para llegar al
+    // float aux =  (dutyB/100.0) * 255;
+    OCR2B = dutyB;//(uint8_t) (aux); //Numero hasta el cual cuenta para llegar al
                                                       // tiempo del periodo de trabajo B
   }
 
@@ -572,7 +570,7 @@
     * funciones  específicas  para PWM 14 que setea el valor del periodo base del pwm
     */
 
-        ICR1 = (uint16_t)((T/1000)*(F_CPU/prescalerValue_T16)+1); //Numero hasta el cual cuenta para llegar al
+        ICR1 = (uint16_t)((T/1000.0)*(F_CPU/prescalerValue_T16)-1); //Numero hasta el cual cuenta para llegar al
                                                                 // tiempo del periodo base del PWM
   }
 #endif

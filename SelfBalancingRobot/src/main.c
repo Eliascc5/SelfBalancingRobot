@@ -63,6 +63,10 @@ int main(void) {
 //-----------------------------------------//
 //--------   Timer 8bit 2 para PWM  -------//
 //-----------------------------------------//
+<<<<<<< HEAD
+
+=======
+>>>>>>> c908fa0cc20ccfd941f86d2b1844d6fad7df1eef
   D3_salida;
   B3_salida;
   confModo_T8(MODE_TIMER2,2);
@@ -80,11 +84,53 @@ int main(void) {
   confModoSalidas_T8(MODE_OC0A, MODE_OC0B,0);
   interrupciones_T8(0,0,0,0);
   confPrescaler_T8(PRESCALER_TIMER0,0);
+<<<<<<< HEAD
+  setDutyA0(0);
+  setDutyB0(0);
+
+
+  // D5_salida;
+  // D6_apagado;
+  // confModo_T8(3);
+  // confModoSalidas_T8(MODE_OC0A, 2);
+  // interrupciones_T8(0,0,0);
+  // confPrescaler_T8(10);
+  // setDutyA8(1000);
+  // setDutyB8(10);
+
+=======
   // setDutyA0(100);
   // setDutyB0(0);
+>>>>>>> c908fa0cc20ccfd941f86d2b1844d6fad7df1eef
 //-----------------------------------------//
 //---- Timer 16bit para temporizacion  ----//
 //-----------------------------------------//
+<<<<<<< HEAD
+
+
+  // double u = 0; //Accion de control (salida del pid)
+	setSamplingTime(10);
+	setControllerGains(2.5, 0 ,0);  //kp -- ki -- kd
+  while (1) {
+    //if (flag_timer0){
+
+      double AnguloPID = getAngulo();
+
+			double error = AnguloPID - SETPOINT;
+
+      double outPID = pid(error);
+
+
+
+			//Casting to print
+			int salidaPID = (int)outPID*10;
+      int errorCast = (int)error *1;
+			printf("%d , %d\n",salidaPID , errorCast);
+			_delay_ms(10);
+
+      //flag_timer0 = 0;
+    //}
+=======
   confModo_T16(MODE_TIMER1);
   confPrescaler_T16(TIEMPO_TIMER1);
   confModoSalidas_T16(MODE_OC1A, MODE_OC1B);
@@ -117,6 +163,7 @@ int main(void) {
     setDutyA2(OCRnX);
     setDutyB2(OCRnX);
     flag_timer1 = 1; // Bandera de temporizacion
+>>>>>>> c908fa0cc20ccfd941f86d2b1844d6fad7df1eef
   }
   return 0;
 }

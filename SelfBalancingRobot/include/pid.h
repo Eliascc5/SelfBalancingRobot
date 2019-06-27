@@ -11,7 +11,7 @@
   volatile double Kd = 0; // Ganancia derivatiba
   volatile double Ts = 0;  // Tiempo de muestreo [s]
 
-  double pid(double e){
+  uint8_t pid(double e){
     /**
     * Implementacion de un controlador P+I+D
     * @param e: error actual
@@ -20,7 +20,7 @@
     double u = Kp * e + Ki * Ts * e_sum + Kd * (e - e_ant) / Ts;
     e_sum += e;
     e_ant = e;
-    return u;
+    return (uint8_t) (u+127);
   }
 
   void setControllerGains(double Kp_, double Ki_, double Kd_){

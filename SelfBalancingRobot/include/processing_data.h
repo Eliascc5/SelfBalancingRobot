@@ -61,7 +61,7 @@ ay_angle = ((atan2 (ax_raw, az_raw) ) * RAD_TO_DEG); //
 
 //anguloX = 0.5 * (anguloX + gx_angle) + 0.5 * ax_angle;
 
-anguloY = 0.5 * (anguloY + gy_angle) + 0.5 * ay_angle;
+anguloY = 0.1 * (anguloY + gy_angle) + 0.9 * ay_angle;
 
 //Casting to print
 

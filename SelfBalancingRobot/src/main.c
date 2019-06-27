@@ -31,7 +31,7 @@
 #define MODE_TIMER1 4        // CTC Mode 4
 #define MODE_OC1A 1          // OUTPUT Compare pin (OC1A) en modo toggle 1
 #define MODE_OC1B 0          // OUTPUT Compare pin (OC1B) en modo off 0
-#define PRESCALER_TIMER1 10  // Tiempo en ms para definir el prescaler
+#define TIEMPO_TIMER1 2  // Tiempo en ms para definir el prescaler
 /*USART declaracion de tipo stream de E/S*/
 FILE uart_io = FDEV_SETUP_STREAM(mi_putc0, mi_getc0, _FDEV_SETUP_RW); // Declara un tipo stream de E/S
 /*Interrupcion del timer y flag para temporizacion*/
@@ -86,30 +86,36 @@ int main(void) {
 //---- Timer 16bit para temporizacion  ----//
 //-----------------------------------------//
   confModo_T16(MODE_TIMER1);
-  confPrescaler_T16(PRESCALER_TIMER1);
+  confPrescaler_T16(TIEMPO_TIMER1);
   confModoSalidas_T16(MODE_OC1A, MODE_OC1B);
   interrupciones_T16(0, 1, 0, 0);  //interrupcion por compare match con OC1A
-  setDutyA16(10);
+  setDutyA16(TIEMPO_TIMER1);
 //-----------------------------------------//
 //---------------   PID    ----------------//
 //-----------------------------------------//
 // double u = 0; //Accion de control (salida del pid)
-	setSamplingTime(10); // 10 ms
-	setControllerGains(2.5, 0.0,0.0);  //kp -- ki -- kd
+	setSamplingTime(TIEMPO_TIMER1); // 10 ms
+	setControllerGains(7.6, 0.0,0.0);  //kp -- ki -- kd
+
+/*Variables para el control*/
+  double AnguloPID;
+  double error;
+  double outPID;
+  uint8_t OCRnX;
 /*Control loop*/
   while (1) {
     while (flag_timer1) { _delay_us(1);} //Bucle para temporizacion: Espera interrupcion del timer
     /*PID*/
-    double AnguloPID = getAngulo();
-    double error = AnguloPID - SETPOINT;
-    uint8_t outPID = pid(error);
-    printf("%d\n",outPID );
-    if (outPID > 240) outPID = 240;
-    else if(outPID < 10) outPID = 10;
-    setDutyA0(outPID);
-    setDutyB0(outPID);
-    setDutyA2(outPID);
-    setDutyB2(outPID);
+    AnguloPID = getAngulo();
+    error = AnguloPID - SETPOINT;
+    outPID = pid(error);
+    if (outPID > 204) outPID = 204;
+    else if(outPID < 51) outPID = 51;
+    OCRnX = (uint8_t) outPID;
+    setDutyA0(OCRnX);
+    setDutyB0(OCRnX);
+    setDutyA2(OCRnX);
+    setDutyB2(OCRnX);
     flag_timer1 = 1; // Bandera de temporizacion
   }
   return 0;

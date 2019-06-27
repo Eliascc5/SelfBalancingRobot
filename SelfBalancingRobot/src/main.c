@@ -70,7 +70,7 @@ int main(void) {
 //-----------------------------------------//
 //----- Timer 8bit 2 para temporizacion -----//
 //-----------------------------------------//
-<<<<<<< HEAD
+
   D3_salida;
   B3_apagado;
   confModo_T8(MODE_TIMER2,2);
@@ -92,7 +92,7 @@ int main(void) {
   setDutyA0(0);
   setDutyB0(0);
 
-=======
+
   // D5_salida;
   // D6_apagado;
   // confModo_T8(3);
@@ -101,7 +101,7 @@ int main(void) {
   // confPrescaler_T8(10);
   // setDutyA8(1000);
   // setDutyB8(10);
->>>>>>> 2cc97e077ad5b692b48fd562e6bd3820b5e55666
+
 //-----------------------------------------//
 //-----     Timer 16bit para PWM      -----//
 //-----------------------------------------//
@@ -109,7 +109,7 @@ int main(void) {
 
   // double u = 0; //Accion de control (salida del pid)
 	setSamplingTime(10);
-	setControllerGains(0.3, 0.01 ,0.3);  //kp -- ki -- kd
+	setControllerGains(2.5, 0 ,0);  //kp -- ki -- kd
   while (1) {
     //if (flag_timer0){
 
@@ -119,9 +119,12 @@ int main(void) {
 
       double outPID = pid(error);
 
+
+
 			//Casting to print
-			int salidaPID =(int)outPID*10;
-			printf("%d\n",salidaPID);
+			int salidaPID = (int)outPID*10;
+      int errorCast = (int)error *1;
+			printf("%d , %d\n",salidaPID , errorCast);
 			_delay_ms(10);
 
       //flag_timer0 = 0;

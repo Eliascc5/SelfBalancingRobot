@@ -5,4 +5,4 @@ uint8_t i2c_start(uint8_t address);
 uint8_t i2c_write(uint8_t data);
 uint8_t i2c_read(uint8_t ack);
 void i2c_stop(void);
-void i2c_wait(void);
+void i2c_wait();

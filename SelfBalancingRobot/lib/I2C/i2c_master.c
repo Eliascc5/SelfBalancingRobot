@@ -28,12 +28,19 @@ TWEN-> Bit de enable de TWI
 
   #define Prescaler 1   //1,4,16,64 (Tabla pag 232)
 
+  void i2c_wait(){
+	   while ((TWCR & (1<<TWINT)) == 0);   //espera mientras el  bit de interrupcion sea 0
+  }
+
+
+
   void i2c_init(uint32_t F_SCL){
     uint32_t TWBR_val;
-    PORTC|=((1<<4)|(1<<5));
+    PORTC|=((1<<4)|(1<<5));                                   //Activa resistencias de pull-up para los pines SDA Y SCL
   	TWBR_val = (((F_CPU / F_SCL) - 16 ) / (Prescaler * 2));  //FRECUENCIA DE SCL F_SCL (Pag 213)
   	TWBR = (uint8_t)TWBR_val;  //Casting
   }
+
 
   //Incluye el bit de START y la escritura de address
 
@@ -43,8 +50,8 @@ TWEN-> Bit de enable de TWI
   	TWCR = 0;             //Reset al registro de control de TWI (habilita la interfaz TWI)
   	TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN);  	//Transmite la condicion de START (Pag 217- datasheet-Atmega)
 
-    while(!(TWCR & (1<<TWINT)));	//Espera un flag-set en TWINT; Esto indica que la condicion de STAR ha sido transimitida
-
+    //while(!(TWCR & (1<<TWINT)));
+    i2c_wait();	             //Espera un flag-set en TWINT; Esto indica que la condicion de STAR ha sido transimitida
   	if((TWSR & 0xF8) != TW_START){  // Chequea el valor de TWSR.. Si ambos valores son iguales devuelve ERROR
       return 1;
     }
@@ -53,8 +60,8 @@ TWEN-> Bit de enable de TWI
 
   	TWCR = (1<<TWINT) | (1<<TWEN); //Comienza la transmision de la direccion
 
-  	while(!(TWCR & (1<<TWINT))); 	//Espera un flag-set en TWINT; Esto indica que la direccion del esclavo ha sido transimitida
-
+  	//while(!(TWCR & (1<<TWINT)));
+    i2c_wait();              //Espera un flag-set en TWINT; Esto indica que la direccion del esclavo ha sido transimitida
   	//Chequea el valor de TWI status register
   	uint8_t twst = TW_STATUS & 0xF8;
   	if ((twst != TW_MT_SLA_ACK) && (twst != TW_MR_SLA_ACK))   //MT (Master transmitter) MR (master receiver)
@@ -70,8 +77,9 @@ TWEN-> Bit de enable de TWI
   	TWDR = data;   //Carga el dato en el registro de datos TWDR
 
   	TWCR = (1<<TWINT) | (1<<TWEN);  //Set en TWINT y TWEN (comienza la transmision del dato)
-  	// wait for end of transmission
-  	while( !(TWCR & (1<<TWINT)) );	//Espera un flag-set en TWINT, esto indica que el dato ha sido transmitido
+
+  	//while( !(TWCR & (1<<TWINT)) );
+    i2c_wait();           //Espera un flag-set en TWINT, esto indica que el dato ha sido transmitido
   	if((TWSR & 0xF8) != TW_MT_DATA_ACK){  //Verifica el TWSR a  TW_MT_DATA_ACK devuelve NACK
     return 1;  //NACK
     }
@@ -84,7 +92,8 @@ TWEN-> Bit de enable de TWI
 
   	TWCR = (1<<TWINT)|(1<<TWEN)|(ack<<TWEA); //Comienza el modelo ACK de TWI despues de la recepcion del dato
 
-  	while( !(TWCR & (1<<TWINT)) ); ////Espera un flag-set en TWINT, esto indica que el dato ha sido transmitido
+  	//while( !(TWCR & (1<<TWINT)) );
+    i2c_wait();             //Espera un flag-set en TWINT, esto indica que el dato ha sido transmitido
   	return TWDR;  //Devuelve el dato recibido en TWDR
   }
 

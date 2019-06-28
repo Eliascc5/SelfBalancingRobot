@@ -31,7 +31,7 @@
 #define MODE_TIMER1 4        // CTC Mode 4
 #define MODE_OC1A 1          // OUTPUT Compare pin (OC1A) en modo toggle 1
 #define MODE_OC1B 0          // OUTPUT Compare pin (OC1B) en modo off 0
-#define PRESCALER_TIMER1 10  // Tiempo en ms para definir el prescaler
+#define TIEMPO_TIMER1 2  // Tiempo en ms para definir el prescaler
 /*USART declaracion de tipo stream de E/S*/
 FILE uart_io = FDEV_SETUP_STREAM(mi_putc0, mi_getc0, _FDEV_SETUP_RW); // Declara un tipo stream de E/S
 /*Interrupcion del timer y flag para temporizacion*/
@@ -63,10 +63,6 @@ int main(void) {
 //-----------------------------------------//
 //--------   Timer 8bit 2 para PWM  -------//
 //-----------------------------------------//
-<<<<<<< HEAD
-
-=======
->>>>>>> c908fa0cc20ccfd941f86d2b1844d6fad7df1eef
   D3_salida;
   B3_salida;
   confModo_T8(MODE_TIMER2,2);
@@ -84,80 +80,45 @@ int main(void) {
   confModoSalidas_T8(MODE_OC0A, MODE_OC0B,0);
   interrupciones_T8(0,0,0,0);
   confPrescaler_T8(PRESCALER_TIMER0,0);
-<<<<<<< HEAD
-  setDutyA0(0);
-  setDutyB0(0);
-
-
-  // D5_salida;
-  // D6_apagado;
-  // confModo_T8(3);
-  // confModoSalidas_T8(MODE_OC0A, 2);
-  // interrupciones_T8(0,0,0);
-  // confPrescaler_T8(10);
-  // setDutyA8(1000);
-  // setDutyB8(10);
-
-=======
   // setDutyA0(100);
   // setDutyB0(0);
->>>>>>> c908fa0cc20ccfd941f86d2b1844d6fad7df1eef
+
 //-----------------------------------------//
 //---- Timer 16bit para temporizacion  ----//
 //-----------------------------------------//
-<<<<<<< HEAD
 
-
-  // double u = 0; //Accion de control (salida del pid)
-	setSamplingTime(10);
-	setControllerGains(2.5, 0 ,0);  //kp -- ki -- kd
-  while (1) {
-    //if (flag_timer0){
-
-      double AnguloPID = getAngulo();
-
-			double error = AnguloPID - SETPOINT;
-
-      double outPID = pid(error);
-
-
-
-			//Casting to print
-			int salidaPID = (int)outPID*10;
-      int errorCast = (int)error *1;
-			printf("%d , %d\n",salidaPID , errorCast);
-			_delay_ms(10);
-
-      //flag_timer0 = 0;
-    //}
-=======
   confModo_T16(MODE_TIMER1);
-  confPrescaler_T16(PRESCALER_TIMER1);
+  confPrescaler_T16(TIEMPO_TIMER1);
   confModoSalidas_T16(MODE_OC1A, MODE_OC1B);
   interrupciones_T16(0, 1, 0, 0);  //interrupcion por compare match con OC1A
-  setDutyA16(10);
+  setDutyA16(TIEMPO_TIMER1);
 //-----------------------------------------//
 //---------------   PID    ----------------//
 //-----------------------------------------//
 // double u = 0; //Accion de control (salida del pid)
-	setSamplingTime(10); // 10 ms
-	setControllerGains(2.5, 0.0,0.0);  //kp -- ki -- kd
+	setSamplingTime(TIEMPO_TIMER1); // 10 ms
+	setControllerGains(7.6, 0.0,0.0);  //kp -- ki -- kd
+
+/*Variables para el control*/
+  double AnguloPID;
+  double error;
+  double outPID;
+  uint8_t OCRnX;
 /*Control loop*/
   while (1) {
     while (flag_timer1) { _delay_us(1);} //Bucle para temporizacion: Espera interrupcion del timer
     /*PID*/
-    double AnguloPID = getAngulo();
-    double error = AnguloPID - SETPOINT;
-    uint8_t outPID = pid(error);
-    printf("%d\n",outPID );
-    if (outPID > 240) outPID = 240;
-    else if(outPID < 10) outPID = 10;
-    setDutyA0(outPID);
-    setDutyB0(outPID);
-    setDutyA2(outPID);
-    setDutyB2(outPID);
+    AnguloPID = getAngulo();
+    error = AnguloPID - SETPOINT;
+    outPID = pid(error);
+    if (outPID > 204) outPID = 204;
+    else if(outPID < 51) outPID = 51;
+    OCRnX = (uint8_t) outPID;
+    setDutyA0(OCRnX);
+    setDutyB0(OCRnX);
+    setDutyA2(OCRnX);
+    setDutyB2(OCRnX);
     flag_timer1 = 1; // Bandera de temporizacion
->>>>>>> c908fa0cc20ccfd941f86d2b1844d6fad7df1eef
   }
   return 0;
 }

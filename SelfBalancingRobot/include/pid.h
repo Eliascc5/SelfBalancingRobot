@@ -4,8 +4,8 @@
   #include <stdlib.h>
   #include <stdio.h>
 
-  volatile double e_sum = 0; // Suma de los errores
-  volatile double e_ant = 0; // Error anterior
+  double e_sum = 0; // Suma de los errores
+  double e_ant = 0; // Error anterior
   volatile double Kp = 0; // Ganancia proporcional
   volatile double Ki = 0; // Ganancia integral
   volatile double Kd = 0; // Ganancia derivatiba
@@ -18,9 +18,10 @@
     * @returns u: accion de control
     **/
     double u = Kp * e + Ki * Ts * e_sum + Kd * (e - e_ant) / Ts;
-    e_sum += e;
+    e_sum = e_sum + (int) e;
+    // printf("%d, %d, %d, %d\n",(int) e_sum,  (int)e, (int)(e - e_ant), (int)u+127);
     e_ant = e;
-    return (uint8_t) (u+127);
+    return (u+127);
   }
 
   void setControllerGains(double Kp_, double Ki_, double Kd_){

@@ -13,7 +13,8 @@
 #include "pid.h"
 #include "gpio_register_atmega328p.h"
 #include "processing_data.h"
-
+/*USART*/
+#define UART_BAUDRATE 9600
 #define DEV_ADDR 0x68			// Direccion estandar de MPU
 // -------------- TIMERS ---------------
 #define TP_CONTROL_LOOP 5   //Periodo en ms para el control del robot
@@ -48,25 +49,19 @@ void Timer_init(void){
   //-----------------------------------------//
   //--------   Timer 8bit 2 para PWM  -------//
   //-----------------------------------------//
-    D3_salida;
-    B3_salida;
+    D3_salida; B3_salida;
     confModo_T8(MODE_TIMER2,2);
     confModoSalidas_T8(MODE_OC2A, MODE_OC2B,2);
     interrupciones_T8(0,0,0,2);
     confPrescaler_T8(PRESCALER_TIMER2,2);
-    // setDutyA2(100);
-    // setDutyB2(0);
   //-----------------------------------------//
   //-------- Timer 8bit 0 para PWM    -------//
   //-----------------------------------------//
-    D6_salida;
-    D5_salida;
+    D6_salida; D5_salida;
     confModo_T8(MODE_TIMER0,0);
     confModoSalidas_T8(MODE_OC0A, MODE_OC0B,0);
     interrupciones_T8(0,0,0,0);
     confPrescaler_T8(PRESCALER_TIMER0,0);
-    // setDutyA0(100);
-    // setDutyB0(0);
   //-----------------------------------------//
   //---- Timer 16bit para temporizacion  ----//
   //-----------------------------------------//
@@ -74,7 +69,7 @@ void Timer_init(void){
     confPrescaler_T16(TIEMPO_TIMER1);
     confModoSalidas_T16(MODE_OC1A, MODE_OC1B);
     interrupciones_T16(0, 1, 0, 0);  //interrupcion por compare match con OC1A
-    setDutyA16(TIEMPO_TIMER1);
+    // setDutyA16(TIEMPO_TIMER1);
 }
 /*------------------------------------------------*/
 int main(void) {
@@ -94,7 +89,7 @@ int main(void) {
 //-----------------------------------------//
 //-----      CONFIGURACION USART      -----//
 //-----------------------------------------//
-	mi_UART_Init0(9600,0,0);
+	mi_UART_Init0(UART_BAUDRATE,0,0);
 	stdout = stdin = &uart_io;  // El stream (FILE) uart_io es la E/S estandar, es decir para putc y getc
 	printf("OK\r\n");
 

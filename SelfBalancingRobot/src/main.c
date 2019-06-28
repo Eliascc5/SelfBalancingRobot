@@ -16,7 +16,9 @@
 
 #define DEV_ADDR 0x68			// Direccion estandar de MPU
 // -------------- TIMERS ---------------
-#define TP_CONTROL_LOOP 10   //Periodo en ms para el control del robot
+#define TP_CONTROL_LOOP 5   //Periodo en ms para el control del robot
+#define OCRNX_MAX 204
+#define OCRNX_MIN 51
 /* TIMER 0*/
 #define MODE_TIMER0 1        // Phase Correct PWM Mode 1
 #define MODE_OC0A 2          // OUTPUT Compare pin (OC0A) en modo clear 2
@@ -31,13 +33,48 @@
 #define MODE_TIMER1 4        // CTC Mode 4
 #define MODE_OC1A 1          // OUTPUT Compare pin (OC1A) en modo toggle 1
 #define MODE_OC1B 0          // OUTPUT Compare pin (OC1B) en modo off 0
-#define TIEMPO_TIMER1 2  // Tiempo en ms para definir el prescaler
+#define TIEMPO_TIMER1 5  // Tiempo en ms para definir el prescaler
+
 /*USART declaracion de tipo stream de E/S*/
 FILE uart_io = FDEV_SETUP_STREAM(mi_putc0, mi_getc0, _FDEV_SETUP_RW); // Declara un tipo stream de E/S
 /*Interrupcion del timer y flag para temporizacion*/
 int flag_timer1 = 1;
 ISR(TIMER1_COMPA_vect){
     flag_timer1 = 0;
+}
+
+void Timer_init(void){
+/*Rutina para inicializar los timers*/
+  //-----------------------------------------//
+  //--------   Timer 8bit 2 para PWM  -------//
+  //-----------------------------------------//
+    D3_salida;
+    B3_salida;
+    confModo_T8(MODE_TIMER2,2);
+    confModoSalidas_T8(MODE_OC2A, MODE_OC2B,2);
+    interrupciones_T8(0,0,0,2);
+    confPrescaler_T8(PRESCALER_TIMER2,2);
+    // setDutyA2(100);
+    // setDutyB2(0);
+  //-----------------------------------------//
+  //-------- Timer 8bit 0 para PWM    -------//
+  //-----------------------------------------//
+    D6_salida;
+    D5_salida;
+    confModo_T8(MODE_TIMER0,0);
+    confModoSalidas_T8(MODE_OC0A, MODE_OC0B,0);
+    interrupciones_T8(0,0,0,0);
+    confPrescaler_T8(PRESCALER_TIMER0,0);
+    // setDutyA0(100);
+    // setDutyB0(0);
+  //-----------------------------------------//
+  //---- Timer 16bit para temporizacion  ----//
+  //-----------------------------------------//
+    confModo_T16(MODE_TIMER1);
+    confPrescaler_T16(TIEMPO_TIMER1);
+    confModoSalidas_T16(MODE_OC1A, MODE_OC1B);
+    interrupciones_T16(0, 1, 0, 0);  //interrupcion por compare match con OC1A
+    setDutyA16(TIEMPO_TIMER1);
 }
 /*------------------------------------------------*/
 int main(void) {
@@ -51,7 +88,7 @@ int main(void) {
 	DEV_write(0,MPU6050_RA_CONFIG, MPU6050_DLPF_BW_10);			// filtro LP 10hz (se configura con mpu_6050.h )  DLPF-> Digital low pass filter
 	                                                        //DEV_write(0, SMPLRT_DIV, 0x04);
 //Configuracion del gyroscopo FS_SEL  "Full scale range" Segun tabla de mapa de registros PAG 14.
-	DEV_write(0,MPU6050_RA_GYRO_CONFIG, MPU6050_GYRO_FS_250 );   //+-250°/s
+	DEV_write(0,MPU6050_RA_GYRO_CONFIG, MPU6050_GYRO_FS_250);   //+-250°/s
 //Configuracion del gyroscopo FS_SEL  "Full scale range" Segun tabla de mapa de registros PAG 14.
 	DEV_write(0,MPU6050_RA_ACCEL_CONFIG, MPU6050_ACCEL_FS_2); //+-2g
 //-----------------------------------------//
@@ -60,110 +97,42 @@ int main(void) {
 	mi_UART_Init0(9600,0,0);
 	stdout = stdin = &uart_io;  // El stream (FILE) uart_io es la E/S estandar, es decir para putc y getc
 	printf("OK\r\n");
-//-----------------------------------------//
-//--------   Timer 8bit 2 para PWM  -------//
-//-----------------------------------------//
-<<<<<<< HEAD
 
-=======
->>>>>>> c908fa0cc20ccfd941f86d2b1844d6fad7df1eef
-  D3_salida;
-  B3_salida;
-  confModo_T8(MODE_TIMER2,2);
-  confModoSalidas_T8(MODE_OC2A, MODE_OC2B,2);
-  interrupciones_T8(0,0,0,2);
-  confPrescaler_T8(PRESCALER_TIMER2,2);
-  // setDutyA2(100);
-  // setDutyB2(0);
-//-----------------------------------------//
-//-------- Timer 8bit 0 para PWM    -------//
-//-----------------------------------------//
-  D6_salida;
-  D5_salida;
-  confModo_T8(MODE_TIMER0,0);
-  confModoSalidas_T8(MODE_OC0A, MODE_OC0B,0);
-  interrupciones_T8(0,0,0,0);
-  confPrescaler_T8(PRESCALER_TIMER0,0);
-<<<<<<< HEAD
-  setDutyA0(0);
-  setDutyB0(0);
+/*Inicializacion de Timers*/
+  Timer_init();
 
-
-  // D5_salida;
-  // D6_apagado;
-  // confModo_T8(3);
-  // confModoSalidas_T8(MODE_OC0A, 2);
-  // interrupciones_T8(0,0,0);
-  // confPrescaler_T8(10);
-  // setDutyA8(1000);
-  // setDutyB8(10);
-
-=======
-  // setDutyA0(100);
-  // setDutyB0(0);
->>>>>>> c908fa0cc20ccfd941f86d2b1844d6fad7df1eef
-//-----------------------------------------//
-//---- Timer 16bit para temporizacion  ----//
-//-----------------------------------------//
-<<<<<<< HEAD
-
-
-  // double u = 0; //Accion de control (salida del pid)
-	setSamplingTime(10);
-	setControllerGains(2.5, 0 ,0);  //kp -- ki -- kd
-  while (1) {
-    //if (flag_timer0){
-
-      double AnguloPID = getAngulo();
-
-			double error = AnguloPID - SETPOINT;
-
-      double outPID = pid(error);
-
-
-
-			//Casting to print
-			int salidaPID = (int)outPID*10;
-      int errorCast = (int)error *1;
-			printf("%d , %d\n",salidaPID , errorCast);
-			_delay_ms(10);
-
-      //flag_timer0 = 0;
-    //}
-=======
-  confModo_T16(MODE_TIMER1);
-  confPrescaler_T16(TIEMPO_TIMER1);
-  confModoSalidas_T16(MODE_OC1A, MODE_OC1B);
-  interrupciones_T16(0, 1, 0, 0);  //interrupcion por compare match con OC1A
-  setDutyA16(TIEMPO_TIMER1);
 //-----------------------------------------//
 //---------------   PID    ----------------//
 //-----------------------------------------//
 // double u = 0; //Accion de control (salida del pid)
-	setSamplingTime(TIEMPO_TIMER1); // 10 ms
-	setControllerGains(7.6, 0.0,0.0);  //kp -- ki -- kd
+	setSamplingTime(TP_CONTROL_LOOP); // 10 ms
+	setControllerGains(6.6, 0.0, 0.037);  //kp -- ki -- kd 0632
 
 /*Variables para el control*/
   double AnguloPID;
   double error;
   double outPID;
   uint8_t OCRnX;
+
 /*Control loop*/
   while (1) {
     while (flag_timer1) { _delay_us(1);} //Bucle para temporizacion: Espera interrupcion del timer
     /*PID*/
     AnguloPID = getAngulo();
-    error = AnguloPID - SETPOINT;
+    error =  SETPOINT - AnguloPID;
     outPID = pid(error);
-    if (outPID > 204) outPID = 204;
-    else if(outPID < 51) outPID = 51;
+    // printf("%d\n",(int) outPID);
+    /*Saturacion del PWM*/
+    if (outPID > OCRNX_MAX) {outPID = OCRNX_MAX;}
+    if(outPID < OCRNX_MIN) {outPID = OCRNX_MIN;}
+
     OCRnX = (uint8_t) outPID;
+    // printf("%d\n",OCRnX );
     setDutyA0(OCRnX);
     setDutyB0(OCRnX);
     setDutyA2(OCRnX);
     setDutyB2(OCRnX);
     flag_timer1 = 1; // Bandera de temporizacion
->>>>>>> c908fa0cc20ccfd941f86d2b1844d6fad7df1eef
   }
   return 0;
 }

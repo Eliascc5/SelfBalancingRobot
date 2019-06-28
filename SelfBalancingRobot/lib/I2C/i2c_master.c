@@ -24,11 +24,12 @@ TWEN-> Bit de enable de TWI
   #include <avr/io.h>
   #include <util/twi.h>
 
-  #include "i2c_master.h"x
+  #include "i2c_master.h"
 
   #define Prescaler 1   //1,4,16,64 (Tabla pag 232)
 
   void i2c_init(uint32_t F_SCL){
+
     uint32_t TWBR_val;
     PORTC|=((1<<4)|(1<<5));
   	TWBR_val = (((F_CPU / F_SCL) - 16 ) / (Prescaler * 2));  //FRECUENCIA DE SCL F_SCL (Pag 213)

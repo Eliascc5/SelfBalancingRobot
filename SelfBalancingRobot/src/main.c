@@ -20,6 +20,7 @@
 #define TP_CONTROL_LOOP 5   //Periodo en ms para el control del robot
 #define OCRNX_MAX 204
 #define OCRNX_MIN 51
+#define OCRNX_GIRO 20       //Para hacer girar el robot
 /* TIMER 0*/
 #define MODE_TIMER0 1        // Phase Correct PWM Mode 1
 #define MODE_OC0A 2          // OUTPUT Compare pin (OC0A) en modo clear 2
@@ -35,17 +36,25 @@
 #define MODE_OC1A 1          // OUTPUT Compare pin (OC1A) en modo toggle 1
 #define MODE_OC1B 0          // OUTPUT Compare pin (OC1B) en modo off 0
 #define TIEMPO_TIMER1 5  // Tiempo en ms para definir el prescaler
+/*CONTROL*/
+#define STATIC_SETPOINT 90.0 		//Para mantenerlo parado. PARA LA ORIENTACION en la que ubicamos el sensor
+volatile float SETPOINT = 90.0; //Para moverlo.
+      // #define FORWARD_SETPOINT 95.0; //Para moverlo hacia adelante.
+      // #define BACKWARD_SETPOINT 85.0; //Para moverlo hacia atras.
+/*Estados posibles de la maquina de estados*/
+enum tEstados_m{Start, Move_forward, Move_backward, Turn_right, Turn_left, Retain_immobile, Set_offset}estado_s;
 
 /*USART declaracion de tipo stream de E/S*/
 FILE uart_io = FDEV_SETUP_STREAM(mi_putc0, mi_getc0, _FDEV_SETUP_RW); // Declara un tipo stream de E/S
+
 /*Interrupcion del timer y flag para temporizacion*/
 int flag_timer1 = 1;
 ISR(TIMER1_COMPA_vect){
     flag_timer1 = 0;
 }
 
-void Timer_init(void){
 /*Rutina para inicializar los timers*/
+void Timer_init(void){
   //-----------------------------------------//
   //--------   Timer 8bit 2 para PWM  -------//
   //-----------------------------------------//
@@ -71,9 +80,11 @@ void Timer_init(void){
     interrupciones_T16(0, 1, 0, 0);  //interrupcion por compare match con OC1A
     // setDutyA16(TIEMPO_TIMER1);
 }
+
 /*------------------------------------------------*/
 int main(void) {
   sei(); // Habilita interrupciones
+
 //-----------------------------------------//
 //-----    CONFIGURACION I2C Y MPU    -----//
 //-----------------------------------------//
@@ -86,6 +97,7 @@ int main(void) {
 	DEV_write(0,MPU6050_RA_GYRO_CONFIG, MPU6050_GYRO_FS_250);   //+-250°/s
 //Configuracion del gyroscopo FS_SEL  "Full scale range" Segun tabla de mapa de registros PAG 14.
 	DEV_write(0,MPU6050_RA_ACCEL_CONFIG, MPU6050_ACCEL_FS_2); //+-2g
+
 //-----------------------------------------//
 //-----      CONFIGURACION USART      -----//
 //-----------------------------------------//
@@ -109,24 +121,123 @@ int main(void) {
   double outPID;
   uint8_t OCRnX;
 
+/*ESTADO INICIAL*/
+estado_s =Retain_immobile;
+
 /*Control loop*/
   while (1) {
-    while (flag_timer1) { _delay_us(1);} //Bucle para temporizacion: Espera interrupcion del timer
-    /*PID*/
-    AnguloPID = getAngulo();
-    error =  SETPOINT - AnguloPID;
-    outPID = pid(error);
-    // printf("%d\n",(int) outPID);
-    /*Saturacion del PWM*/
-    if (outPID > OCRNX_MAX) {outPID = OCRNX_MAX;}
-    if(outPID < OCRNX_MIN) {outPID = OCRNX_MIN;}
+    switch (estado_s) {
+      case Start:
+          estado_s = Retain_immobile;
+          break;
+      case Move_forward:
+          while (flag_timer1) { _delay_us(1);} //Bucle para temporizacion: Espera interrupcion del timer
+          SETPOINT = 85.0; //Esto hay que sacarlo de aca y setearlo en el interpreta comando
+          /*PID*/
+          AnguloPID = getAngulo();
+          error =  SETPOINT - AnguloPID;
+          outPID = pid(error);
 
-    OCRnX = (uint8_t) outPID;
-    // printf("%d\n",OCRnX );
-    setDutyA0(OCRnX);
-    setDutyB0(OCRnX);
-    setDutyA2(OCRnX);
-    setDutyB2(OCRnX);
+          /*Saturacion del PWM*/
+          if (outPID > OCRNX_MAX) {outPID = OCRNX_MAX;}
+          if(outPID < OCRNX_MIN) {outPID = OCRNX_MIN;}
+
+          OCRnX = (uint8_t) outPID;
+
+          /*MOTOR IZQUIERDO*/
+          setDutyA0(OCRnX);
+          setDutyB0(OCRnX);
+          /*MOTOR DERECHO */
+          setDutyA2(OCRnX);
+          setDutyB2(OCRnX);
+          break;
+      case Move_backward:
+          while (flag_timer1) { _delay_us(1);} //Bucle para temporizacion: Espera interrupcion del timer
+          SETPOINT = 95.0; //Esto hay que sacarlo de aca y setearlo en el interpreta comando
+          /*PID*/
+          AnguloPID = getAngulo();
+          error =  SETPOINT - AnguloPID;
+          outPID = pid(error);
+
+          /*Saturacion del PWM*/
+          if (outPID > OCRNX_MAX) {outPID = OCRNX_MAX;}
+          if(outPID < OCRNX_MIN) {outPID = OCRNX_MIN;}
+
+          OCRnX = (uint8_t) outPID;
+
+          /*MOTOR IZQUIERDO*/
+          setDutyA0(OCRnX);
+          setDutyB0(OCRnX);
+          /*MOTOR DERECHO */
+          setDutyA2(OCRnX);
+          setDutyB2(OCRnX);
+          break;
+      case Turn_right:
+          while (flag_timer1) { _delay_us(1);} //Bucle para temporizacion: Espera interrupcion del timer
+          /*PID*/
+          AnguloPID = getAngulo();
+          error =  SETPOINT - AnguloPID;
+          outPID = pid(error);
+
+          /*Saturacion del PWM*/
+          if (outPID > OCRNX_MAX) {outPID = OCRNX_MAX;}
+          if(outPID < OCRNX_MIN) {outPID = OCRNX_MIN;}
+
+          OCRnX = (uint8_t) outPID;
+
+          /*MOTOR IZQUIERDO*/
+          setDutyA0(OCRnX - OCRNX_GIRO);
+          setDutyB0(OCRnX - OCRNX_GIRO);
+          /*MOTOR DERECHO */
+          setDutyA2(OCRnX + OCRNX_GIRO);
+          setDutyB2(OCRnX + OCRNX_GIRO);
+
+          break;
+      case Turn_left:
+          while (flag_timer1) { _delay_us(1);} //Bucle para temporizacion: Espera interrupcion del timer
+          /*PID*/
+          AnguloPID = getAngulo();
+          error =  SETPOINT - AnguloPID;
+          outPID = pid(error);
+
+          /*Saturacion del PWM*/
+          if (outPID > OCRNX_MAX) {outPID = OCRNX_MAX;}
+          if(outPID < OCRNX_MIN) {outPID = OCRNX_MIN;}
+
+          OCRnX = (uint8_t) outPID;
+
+          /*MOTOR IZQUIERDO*/
+          setDutyA0(OCRnX + OCRNX_GIRO);
+          setDutyB0(OCRnX + OCRNX_GIRO);
+          /*MOTOR DERECHO */
+          setDutyA2(OCRnX - OCRNX_GIRO);
+          setDutyB2(OCRnX - OCRNX_GIRO);
+          break;
+      case Retain_immobile:
+          while (flag_timer1) { _delay_us(1);} //Bucle para temporizacion: Espera interrupcion del timer
+          /*PID*/
+          AnguloPID = getAngulo();
+          error =  STATIC_SETPOINT - AnguloPID;
+          outPID = pid(error);
+
+          /*Saturacion del PWM*/
+          if (outPID > OCRNX_MAX) {outPID = OCRNX_MAX;}
+          if(outPID < OCRNX_MIN) {outPID = OCRNX_MIN;}
+
+          OCRnX = (uint8_t) outPID;
+          /*MOTOR IZQUIERDO*/
+          setDutyA0(OCRnX);
+          setDutyB0(OCRnX);
+          /*MOTOR DERECHO */
+          setDutyA2(OCRnX);
+          setDutyB2(OCRnX);
+          break;
+      case Set_offset:
+          estado_s = Start;
+          break;
+      default:
+          break;
+    }
     flag_timer1 = 1; // Bandera de temporizacion
   }
   return 0;

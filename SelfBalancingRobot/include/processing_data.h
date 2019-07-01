@@ -18,7 +18,7 @@
 #define RAD_TO_DEG  180/3.141592654  //Para conversion
 #define PI 3.1416
 #define PERIOD_MPU 0.00001   //Frecuencia de operacion 100kHz
-#define SETPOINT 90.0 		//PARA LA ORIENTACION en la que ubicamos el sensor
+
 
 
 double getAngulo(){

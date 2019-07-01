@@ -39,6 +39,30 @@
     Kd = Kd_;
   }
 
+  void setKP(double Kp_){
+    /**
+    * Funcion para setear las ganancias del controlador
+    * @param Kp_: ganancia proporcional
+    **/
+    Kp = Kp_;
+  }
+
+  void setKI(double Ki_){
+    /**
+    * Funcion para setear las ganancias del controlador
+    * @param Ki_: ganancia integral
+    **/
+    Ki = Ki_;
+  }
+
+  void setKD(double Kd_){
+    /**
+    * Funcion para setear las ganancias del controlador
+    * @param Kd_: ganancia derivatiba
+    **/
+    Kd = Kd_;
+  }
+
   void setSamplingTime(double Ts_){
     /**
     * Funcion para setear el tiempo de muestreo

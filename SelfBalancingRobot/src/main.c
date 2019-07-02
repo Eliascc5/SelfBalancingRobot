@@ -35,8 +35,8 @@
 #define DEV_ADDR 0x68			// Direccion estandar de MPU
 // -------------- TIMERS ---------------
 #define TP_CONTROL_LOOP 5   //Periodo en ms para el control del robot
-#define OCRNX_MAX 204
-#define OCRNX_MIN 51
+#define OCRNX_MAX 250
+#define OCRNX_MIN 5
 #define OCRNX_GIRO 20       //Para hacer girar el robot
 /* TIMER 0*/
 #define MODE_TIMER0 1        // Phase Correct PWM Mode 1
@@ -50,7 +50,7 @@
 #define PRESCALER_TIMER2 1   // esto nos da un periodo de 0.032ms = (2^8/16Mhz) * 2
 /* TIMER 1*/
 #define MODE_TIMER1 4        // CTC Mode 4
-#define MODE_OC1A 1          // OUTPUT Compare pin (OC1A) en modo toggle 1
+#define MODE_OC1A 0          // OUTPUT Compare pin (OC1A) en modo (toggle 1 - 0 off)
 #define MODE_OC1B 0          // OUTPUT Compare pin (OC1B) en modo off 0
 #define TIEMPO_TIMER1 5  // Tiempo en ms para definir el prescaler
 /*CONTROL*/
@@ -215,7 +215,7 @@ int main(void) {
 //-----------------------------------------//
 // double u = 0; //Accion de control (salida del pid)
 	setSamplingTime(TP_CONTROL_LOOP); // 10 ms
-	setControllerGains(6.6, 0.0, 0.037);  //kp -- ki -- kd 0632
+	setControllerGains(4.5, 0.0, 0.082);  //kp -- ki -- kd 0632
 
 /*Variables para el control*/
   double AnguloPID;
@@ -224,7 +224,7 @@ int main(void) {
   uint8_t OCRnX;
 
 /*ESTADO INICIAL*/
-estado_s = Start;
+estado_s = Retain_immobile;
 
 /*Control loop*/
   while (1) {

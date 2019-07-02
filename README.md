@@ -8,12 +8,12 @@
 ### Lenguaje 📦
  C
 ### Materiales 🛠️
-	* ATMEGA328p
-	* MPU6050
-	* 2 DC Motors
-	* L298N 
+* ATMEGA328p
+* MPU6050
+* 2 DC Motors
+* L298N 
 ### Autores ✒️
-	* **Coreas Elias** 
-	* **Pino Demichelis Jeremias**
+* **Coreas Elias** 
+* **Pino Demichelis Jeremias**
 
 

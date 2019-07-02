@@ -1,5 +1,5 @@
 	/*
-UART EN MODO ASINCRONO(FULL-duplex), con transmision de 8 bit por caracter, 1 bit de stop
+UART EN MODO ASINCRONO(FULL-duplex), con transmision de 8 bit por caracter, 2 bit de stop
 ----------------
 Los registros de datos a transmitir y recibir en este uC comparten la misma direccion,
 la del registro UDR0 (Registro de datos de entrada y salida)
@@ -11,7 +11,7 @@ UCSR0A: Registro 0A de estado y control de la UART
 	#ifndef F_CPU
 	#define F_CPU 16000000
 	#endif
-	//#include "UART_ATmega0.h"
+	#include "UART_ATmega0.h"
 	#include <stdint.h>
 	#include <stdio.h>    //getc(), putc()
 	#include <avr/io.h>
@@ -23,7 +23,7 @@ UCSR0A: Registro 0A de estado y control de la UART
 			//UCSR0A|=(1<<U2X0);
 
 			UCSR0B = (1<<RXEN0)|(1<<TXEN0);			// Habilita bits TXEN0 y RXEN0 (PINES)
-			UCSR0C = (1<<USBS0)|(3<<UCSZ00);		// USBS0=1 2 bits stop, UCSZxx=3 8 bits (tamaño del caracter)
+			UCSR0C = (1<<USBS0)|(3<<UCSZ00);		// USBS0=1 -> 2 bits stop, UCSZxx=3 8 bits (tamaño del caracter)
 			if (Txinterr){
 			  UCSR0A &=~ (1<<TXC0);   //Apago el flag de transmicion completa
 				UCSR0B |= (1<<TXCIE0);	// Interrupcion Tx UART0

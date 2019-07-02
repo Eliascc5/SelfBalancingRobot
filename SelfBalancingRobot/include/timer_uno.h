@@ -524,7 +524,7 @@
   }
 
   void setDutyA0(uint8_t dutyA){
-    /* dutyA en porcentaje
+    /* dutyA
     * funciones  específicas  actualiza el valor del duty cicle A
     */
     // float aux = (dutyA/100.0)*(255);
@@ -533,7 +533,7 @@
   }
 
   void setDutyA2(uint8_t dutyA){
-    /* dutyA en porcentaje
+    /* dutyA
     * funciones  específicas  actualiza el valor del duty cicle A
     */
     // float aux = (dutyA/100.0)*(255);
@@ -551,7 +551,7 @@
   }
 
   void setDutyB0(uint8_t dutyB){
-    /* dutyB en porcentaje
+    /* dutyB
     * funciones  específicas  actualiza el valor del duty cicle B
     */
     // float aux =  (dutyB/100.0) * 255;
@@ -560,7 +560,7 @@
   }
 
   void setDutyB2(uint8_t dutyB){
-    /* dutyB en porcentaje
+    /* dutyB
     * funciones  específicas  actualiza el valor del duty cicle B
     */
     // float aux =  (dutyB/100.0) * 255;
@@ -572,7 +572,6 @@
     /* T en ms
     * funciones  específicas  para PWM 14 que setea el valor del periodo base del pwm
     */
-
         ICR1 = (uint16_t)((T/1000.0)*(F_CPU/prescalerValue_T16)-1); //Numero hasta el cual cuenta para llegar al
                                                                 // tiempo del periodo base del PWM
   }

@@ -1,3 +1,19 @@
+/* Proyecto Final Microcontroladores y Electronica de Potencia
+* Se plantea la fabricacion y control de un robot auto balanceado. Aquise encuentran
+* los drivers del robot
+* Notas:
+*       - Se planteo un control PID para estabilizar el robot.
+*       - Para hacer girar al robot se dan consignas complementarias a los motores
+*         (Ej: una salida del PID = a 100 se convierte en Motor_I = 80 y Motor_D = 120)
+*       - Para hacer avanzar/retroceder al robot se le da una consigna distinta de la de equilibrio (90°)
+*         y se espera que el robot semueva para mantener el nuevo setPoint.
+*       - Cabe destacar que aun no se ha logrado sintonizar el PID por lo tanto
+*         las consideraciones de movimiento antes mencionadas sonhipoteticas
+* Lenguaje: C
+* Materiales: ATMEGA328p, MPU6050, 2 DC Motors, L298N
+* Autores: Coreas Elias y Pino Jeremias
+*/
+
 #include <stdint.h>
 #include <stdio.h>
 #include <math.h>
@@ -26,12 +42,12 @@
 #define MODE_TIMER0 1        // Phase Correct PWM Mode 1
 #define MODE_OC0A 2          // OUTPUT Compare pin (OC0A) en modo clear 2
 #define MODE_OC0B 3          // OUTPUT Compare pin (OC0B) en modo set 3
-#define PRESCALER_TIMER0 1
+#define PRESCALER_TIMER0 1   // esto nos da un periodo de 0.032ms = (2^8/16Mhz) * 2
 /* TIMER 2*/
 #define MODE_TIMER2 1        // Phase Correct PWM Mode 1
 #define MODE_OC2A 2          // OUTPUT Compare pin (OC2A) en modo clear 2
 #define MODE_OC2B 3          // OUTPUT Compare pin (OC2B) en modo set 3
-#define PRESCALER_TIMER2 1
+#define PRESCALER_TIMER2 1   // esto nos da un periodo de 0.032ms = (2^8/16Mhz) * 2
 /* TIMER 1*/
 #define MODE_TIMER1 4        // CTC Mode 4
 #define MODE_OC1A 1          // OUTPUT Compare pin (OC1A) en modo toggle 1
@@ -67,7 +83,7 @@ void InterpretaComando(void){
   // printf("Interpreto comando %c\n",comando[0]);
 	switch(comando[0]){
     case 'S': //SETPOINT
-          aux_i = atoi(&comando[1]);
+          aux_i = atoi(&comando[1]); // lee desde el caracter 1 hasta el caracter nulo y lo convierte en int
           if (aux_i >= 70 && aux_i <= 110){
               SETPOINT = aux_i;
           }else{
@@ -126,8 +142,9 @@ ISR(USART_RX_vect){
     case ':': // Delimitador de inicio
       indcom=0; // Inicializa índice de buffer de recepción
       break;
-    case 13: // Delimitador de final
-      comando[indcom]=0; // coloca \0 luego del último caracter recibido antes de \r
+    case 13: // Delimitador de final, retorno de carro
+      comando[indcom]=0; // coloca \0 (caracter nulo) luego del último caracter recibido antes del CR.
+                         //Esto es util para usar atoi o atof que leen hasta el caracter nulo
       InterpretaComando();// Llama a función intérprete de comandos
       break;
     default: // Todo lo que está entre delimitadores,

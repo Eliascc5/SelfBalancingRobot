@@ -14,7 +14,25 @@ seteando TWBR (TWI bit rate register) y el prescaler.
 
 TWSR-> (Status register)
 TWCR-> Registro de control de TWI
+        TWINT: flag de interrupción. Se setea cuando la comunicación ha terminado una tarea,
+        y no se vuelve automáticamente a 0. Mientras este bit está seteado, se estira el período
+        de estado bajo de SCL. Todos los accesos al registro de datos, de estado o de dirección
+        deben hacerse antes de apagar este bit, ya que al apagarlo comienza su próxima tarea.
+        TWEA: bit de habilitación del pulso de “acknowledge”
+        TWSTA: condición de START
+        TWSTO: condición de STOP
+        TWWC: detector de colisión
+        TWEN: habilitación de comunicación TWI
+        TWIE: habilitación de interrupción de TWI
 TWEN-> Bit de enable de TWI
+
+Start: TWINT|TWSTA|TWEN
+Trans Address: TWINT|TWEN
+Escribe Dato: TWIN|TWEN
+Lee Dato: TWIN|TWEN|[TWEA]
+Stop: TWINT|TWSTO|TWEN
+Hab interr: TWIE
+
 
 */
   #ifndef F_CPU
@@ -35,10 +53,11 @@ TWEN-> Bit de enable de TWI
 
 
   void i2c_init(uint32_t F_SCL){
-
+/*Funcion que activa las recistencias de pull up y setea la  frecuencia del clock mediante el registro TWBR*/
     uint32_t TWBR_val;
     PORTC|=((1<<4)|(1<<5));                                   //Activa resistencias de pull-up para los pines SDA Y SCL
-  	TWBR_val = (((F_CPU / F_SCL) - 16 ) / (Prescaler * 2));  //FRECUENCIA DE SCL F_SCL (Pag 213)
+  	TWBR_val = (((F_CPU / F_SCL) - 16 ) / (Prescaler * 2));  //FRECUENCIA DE SCL F_SCL (Pag 213). del oscilador de scl
+
   	TWBR = (uint8_t)TWBR_val;  //Casting
   }
 
@@ -51,9 +70,9 @@ TWEN-> Bit de enable de TWI
   	TWCR = 0;             //Reset al registro de control de TWI (habilita la interfaz TWI)
   	TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN);  	//Transmite la condicion de START (Pag 217- datasheet-Atmega)
 
-    //while(!(TWCR & (1<<TWINT)));
     i2c_wait();	             //Espera un flag-set en TWINT; Esto indica que la condicion de STAR ha sido transimitida
-  	if((TWSR & 0xF8) != TW_START){  // Chequea el valor de TWSR.. Si ambos valores son iguales devuelve ERROR
+  	if((TWSR & 0xF8) != TW_START){  // Chequea el valor de TWSR.. Si ambos valores son distintos devuelve ERROR
+                                    //TW_START = 0x08
       return 1;
     }
 

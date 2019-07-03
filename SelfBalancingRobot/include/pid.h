@@ -22,6 +22,7 @@
     e_sum = e_sum + (int)e;
     // printf("PID %d, %d, %d, %d\n",(int) e_sum,  (int)e, (int)(e - e_ant), (int)u+127);
     e_ant = e;
+    /*Saturacion de e_sum*/
     if (e_sum > 500) e_sum = 500;
     if (e_sum < -500) e_sum = -500;
     return (u+127);

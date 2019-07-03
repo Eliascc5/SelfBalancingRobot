@@ -18,7 +18,8 @@
 #define RAD_TO_DEG  180/3.141592654  //Para conversion
 #define PI 3.1416
 #define PERIOD_MPU 0.00001   //Frecuencia de operacion 100kHz
-
+#define DT 0.005
+#define ALPHA 0.9
 
 
 double getAngulo(){
@@ -51,7 +52,7 @@ gz_raw = DEV_read16(0, MPU6050_RA_GYRO_ZOUT_H);// | DEV_read(0,MPU6050_RA_GYRO_Z
 gy_raw = (gy_raw/GYROSENSITIVITY);
 
 //gx_angle = (double) ((double)gx_raw * PERIOD_MPU);  //Para obtener lectura en grados
-gy_angle = (double) ((double)gy_raw * PERIOD_MPU);	//Para obtener lectura en grados
+gy_angle = (double) ((double)gy_raw * DT);	//Para obtener lectura en grados
 
 ay_angle = ((atan2 (ax_raw, az_raw) ) * RAD_TO_DEG); //
 
@@ -61,7 +62,7 @@ ay_angle = ((atan2 (ax_raw, az_raw) ) * RAD_TO_DEG); //
 
 //anguloX = 0.5 * (anguloX + gx_angle) + 0.5 * ax_angle;
 
-anguloY = 0.2 * (anguloY + gy_angle) + 0.8 * ay_angle;
+anguloY = ALPHA * (anguloY + gy_angle) + (1-ALPHA) * ay_angle;
 
 //Casting to print
 

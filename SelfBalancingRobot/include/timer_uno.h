@@ -456,9 +456,6 @@
         TIFR1 &=~ (1<<OCF1A); //apaga flag
         TIMSK1 |= (1<<OCIE1A); //habilita interrupcion
       }
-
-
-
       if (OutputCaptB) {
         TIFR1 &=~ (1<<OCF1B); //apaga flag
         TIMSK1 |= (1<<OCIE1B); //habilita interrupcion

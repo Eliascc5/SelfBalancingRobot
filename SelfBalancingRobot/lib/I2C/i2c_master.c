@@ -61,10 +61,9 @@ TWEN-> Bit de enable de TWI
 
   	TWCR = (1<<TWINT) | (1<<TWEN); //Comienza la transmision de la direccion
 
-  	//while(!(TWCR & (1<<TWINT)));
     i2c_wait();              //Espera un flag-set en TWINT; Esto indica que la direccion del esclavo ha sido transimitida
   	//Chequea el valor de TWI status register
-  	uint8_t twst = TW_STATUS & 0xF8;
+  	uint8_t twst = TW_STATUS & 0xF8;     //Pag 216 datasheet
   	if ((twst != TW_MT_SLA_ACK) && (twst != TW_MR_SLA_ACK))   //MT (Master transmitter) MR (master receiver)
     return 1;	  //Error
 

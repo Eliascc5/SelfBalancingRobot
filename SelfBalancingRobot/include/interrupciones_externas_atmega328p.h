@@ -28,9 +28,6 @@
 #define INT1_evento_flancoSubida (EICRA |= (3<<ISC10))
 
 
-
-
-
 //El registro EIFR (External interurpt flag register) contiene a los flags de las interrupciones externas.
 
  #define flagINT0_apagado (EIFR &=~ (1<<INTF0))

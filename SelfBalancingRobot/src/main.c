@@ -13,7 +13,6 @@
 * Materiales: ATMEGA328p, MPU6050, 2 DC Motors, L298N
 * Autores: Coreas Elias y Pino Jeremias
 */
-
 #include <stdint.h>
 #include <stdio.h>
 #include <math.h>
@@ -29,12 +28,12 @@
 #include "pid.h"
 #include "gpio_register_atmega328p.h"
 #include "processing_data.h"
-#include <util/atomic.h>
 /*USART*/
 #define UART_BAUDRATE 57600
 #define DEV_ADDR 0x68			// Direccion estandar de MPU
 // -------------- TIMERS ---------------
 #define TP_CONTROL_LOOP 5   //Periodo en ms para el control del robot
+                            // si se cambia hay que cambiarlo en processing_data
 #define OCRNX_MAX 250
 #define OCRNX_MIN 5
 #define OCRNX_GIRO 20       //Para hacer girar el robot
@@ -52,7 +51,7 @@
 #define MODE_TIMER1 4        // CTC Mode 4
 #define MODE_OC1A 0          // OUTPUT Compare pin (OC1A) en modo (toggle 1 - 0 off)
 #define MODE_OC1B 0          // OUTPUT Compare pin (OC1B) en modo off 0
-#define TIEMPO_TIMER1 5  // Tiempo en ms para definir el prescaler
+#define TIEMPO_TIMER1 5      // Tiempo en ms para definir el prescaler
 /*CONTROL*/
 #define STATIC_SETPOINT 90.0 		//Para mantenerlo parado. PARA LA ORIENTACION en la que ubicamos el sensor
 volatile float SETPOINT = 90.0; //Para moverlo.
@@ -65,22 +64,19 @@ enum tEstados_m{Start, Move_forward, Move_backward, Turn_right, Turn_left, Retai
 /*USART declaracion de tipo stream de E/S y buffer de interpretar comando*/
 FILE uart_io = FDEV_SETUP_STREAM(mi_putc0, mi_getc0, _FDEV_SETUP_RW); // Declara un tipo stream de E/S
 unsigned int indcom; // índice para llenar el buffer de recepción
-char comando[120]; // buffer de recepción
+char comando[30]; // buffer de recepción
 
 /*Interrupcion del timer y flag para temporizacion*/
 int flag_timer1 = 1;
 ISR(TIMER1_COMPA_vect){
-// Asegura que no se puede interrumpir
-    ATOMIC_BLOCK(ATOMIC_FORCEON){
+    cli();
     flag_timer1 = 0;
-    }
     TIFR1 &=~ (1<<OCF1A); //apaga flag
 }
 
 void InterpretaComando(void){
 	int aux_i;
   double aux_f;
-  // printf("Interpreto comando %c\n",comando[0]);
 	switch(comando[0]){
     case 'S': //SETPOINT
           aux_i = atoi(&comando[1]); // lee desde el caracter 1 hasta el caracter nulo y lo convierte en int
@@ -93,20 +89,14 @@ void InterpretaComando(void){
 		case 'P':
 		   aux_f = atof(&comando[1]); // string to float
        setKP(aux_f);
-       // aux_f = aux_f * 100;
-       // printf("KP  %d\n",(int)aux_f);
 		   break;
     case 'I':
 		   aux_f = atof(&comando[1]); // string to float
        setKI(aux_f);
-       // aux_f = aux_f * 100;
-       // printf("KI %d\n",(int)aux_f);
 		   break;
     case 'D':
  			 aux_f = atof(&comando[1]); // string to float
        setKD(aux_f);
-       // aux_f = aux_f * 100;
-       // printf("KD %d\n",(int)aux_f);
  			 break;
     case 'F':
       estado_s = Move_forward;
@@ -176,13 +166,13 @@ void Timer_init(void){
   //---- Timer 16bit para temporizacion  ----//
   //-----------------------------------------//
     confModo_T16(MODE_TIMER1);
-    confPrescaler_T16(TIEMPO_TIMER1);
+    confPrescaler_T16(TIEMPO_TIMER1); // Prescaler = 8 |conprescaler 1 el maximo tiempo 4,096 ms
     confModoSalidas_T16(MODE_OC1A, MODE_OC1B);
     interrupciones_T16(0, 1, 0, 0);  //interrupcion por compare match con OC1A
-    setDutyA16(TIEMPO_TIMER1);
+    setDutyA16(TIEMPO_TIMER1);       //OCR1A = 9999
 }
 
-/*------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
 int main(void) {
 //-----------------------------------------//
 //-----    CONFIGURACION I2C Y MPU    -----//
@@ -213,15 +203,13 @@ int main(void) {
 //-----------------------------------------//
 //---------------   PID    ----------------//
 //-----------------------------------------//
-// double u = 0; //Accion de control (salida del pid)
-	setSamplingTime(TP_CONTROL_LOOP); // 10 ms
-	setControllerGains(4.5, 0.0, 0.082);  //kp -- ki -- kd 0632
-
+	setSamplingTime(TP_CONTROL_LOOP); // 5 ms
+	setControllerGains(30, 0.0, 0.70);  //kp -- ki -- kd 0632
 /*Variables para el control*/
   double AnguloPID;
   double error;
-  double outPID;
-  uint8_t OCRnX;
+  double outPID; //Accion de control (salida del pid)
+  uint8_t OCRnX; //variable auxiliar para setear los pwm
 
 /*ESTADO INICIAL*/
 estado_s = Retain_immobile;
@@ -236,7 +224,7 @@ estado_s = Retain_immobile;
           /*MOTOR DERECHO */
           setDutyA2(127);
           setDutyB2(127);
-          _delay_ms(50);
+          _delay_ms(1);
           break;
       case Move_forward:
           while (flag_timer1) { _delay_us(1);} //Bucle para temporizacion: Espera interrupcion del timer
@@ -258,6 +246,8 @@ estado_s = Retain_immobile;
           /*MOTOR DERECHO */
           setDutyA2(OCRnX);
           setDutyB2(OCRnX);
+
+          flag_timer1 = 1; // Bandera de temporizacion
           break;
       case Move_backward:
           while (flag_timer1) { _delay_us(1);} //Bucle para temporizacion: Espera interrupcion del timer
@@ -279,6 +269,8 @@ estado_s = Retain_immobile;
           /*MOTOR DERECHO */
           setDutyA2(OCRnX);
           setDutyB2(OCRnX);
+
+          flag_timer1 = 1; // Bandera de temporizacion
           break;
       case Turn_right:
           while (flag_timer1) { _delay_us(1);} //Bucle para temporizacion: Espera interrupcion del timer
@@ -300,6 +292,7 @@ estado_s = Retain_immobile;
           setDutyA2(OCRnX + OCRNX_GIRO);
           setDutyB2(OCRnX + OCRNX_GIRO);
 
+          flag_timer1 = 1; // Bandera de temporizacion
           break;
       case Turn_left:
           while (flag_timer1) { _delay_us(1);} //Bucle para temporizacion: Espera interrupcion del timer
@@ -320,9 +313,10 @@ estado_s = Retain_immobile;
           /*MOTOR DERECHO */
           setDutyA2(OCRnX - OCRNX_GIRO);
           setDutyB2(OCRnX - OCRNX_GIRO);
+
+          flag_timer1 = 1; // Bandera de temporizacion
           break;
       case Retain_immobile:
-          // printf("Retain inmmobile\n" );
           while (flag_timer1) { _delay_us(1);} //Bucle para temporizacion: Espera interrupcion del timer
           /*PID*/
           AnguloPID = getAngulo();
@@ -340,14 +334,20 @@ estado_s = Retain_immobile;
           /*MOTOR DERECHO */
           setDutyA2(OCRnX);
           setDutyB2(OCRnX);
+
+          flag_timer1 = 1; // Bandera de temporizacion
           break;
       case Stop:
+          /*MOTOR IZQUIERDO*/
+          setDutyA0(127);
+          setDutyB0(127);
+          /*MOTOR DERECHO */
+          setDutyA2(127);
+          setDutyB2(127);
           return 0;
       default:
           break;
     }
-    // printf("Estado %d\n", estado_s);
-    flag_timer1 = 1; // Bandera de temporizacion
 
   }
   return 0;

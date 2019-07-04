@@ -19,7 +19,7 @@
 #define PI 3.1416
 #define PERIOD_MPU 0.00001   //Frecuencia de operacion 100kHz
 #define DT 0.005
-#define ALPHA 0.9
+#define ALPHA 0.1
 
 
 double getAngulo(){
@@ -35,15 +35,15 @@ double anguloY=90;
 //La aceleracion en verdad esta compuesta por 16 bits
 ax_raw = DEV_read16(0, MPU6050_RA_ACCEL_XOUT_H);//ACCELSENSITIVITY;// | DEV_read(0, MPU6050_RA_ACCEL_XOUT_L))/ACCELSENSITIVITY;
 
-ay_raw = DEV_read16(0, MPU6050_RA_ACCEL_YOUT_H);//ACCELSENSITIVITY; //| DEV_read(0, MPU6050_RA_ACCEL_YOUT_L))/ACCELSENSITIVITY;
+// ay_raw = DEV_read16(0, MPU6050_RA_ACCEL_YOUT_H);//ACCELSENSITIVITY; //| DEV_read(0, MPU6050_RA_ACCEL_YOUT_L))/ACCELSENSITIVITY;
 
 az_raw = DEV_read16(0, MPU6050_RA_ACCEL_ZOUT_H);//ACCELSENSITIVITY;//| DEV_read(0, MPU6050_RA_ACCEL_ZOUT_L))/ACCELSENSITIVITY;
 
-gx_raw = DEV_read16(0, MPU6050_RA_GYRO_XOUT_H); //| DEV_read(0,MPU6050_RA_GYRO_XOUT_L));
+// gx_raw = DEV_read16(0, MPU6050_RA_GYRO_XOUT_H); //| DEV_read(0,MPU6050_RA_GYRO_XOUT_L));
 
 gy_raw = DEV_read16(0,MPU6050_RA_GYRO_YOUT_H) ;//| DEV_read(0,MPU6050_RA_GYRO_YOUT_L));
 
-gz_raw = DEV_read16(0, MPU6050_RA_GYRO_ZOUT_H);// | DEV_read(0,MPU6050_RA_GYRO_ZOUT_L));
+// gz_raw = DEV_read16(0, MPU6050_RA_GYRO_ZOUT_H);// | DEV_read(0,MPU6050_RA_GYRO_ZOUT_L));
 
 //-------------- Processing data ------------------
 

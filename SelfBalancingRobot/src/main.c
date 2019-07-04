@@ -37,6 +37,7 @@
 #define OCRNX_MAX 250
 #define OCRNX_MIN 5
 #define OCRNX_GIRO 20       //Para hacer girar el robot
+#define OCRNX_OFF 127
 /* TIMER 0*/
 #define MODE_TIMER0 1        // Phase Correct PWM Mode 1
 #define MODE_OC0A 2          // OUTPUT Compare pin (OC0A) en modo clear 2
@@ -55,6 +56,8 @@
 /*CONTROL*/
 #define STATIC_SETPOINT 90.0 		//Para mantenerlo parado. PARA LA ORIENTACION en la que ubicamos el sensor
 volatile float SETPOINT = 90.0; //Para moverlo.
+#define ANG_MAX 130
+#define ANG_MIN 50
       // #define FORWARD_SETPOINT 95.0; //Para moverlo hacia adelante.
       // #define BACKWARD_SETPOINT 85.0; //Para moverlo hacia atras.
 
@@ -80,7 +83,7 @@ void InterpretaComando(void){
 	switch(comando[0]){
     case 'S': //SETPOINT
           aux_i = atoi(&comando[1]); // lee desde el caracter 1 hasta el caracter nulo y lo convierte en int
-          if (aux_i >= 70 && aux_i <= 110){
+          if (aux_i <= ANG_MAX && aux_i >= ANG_MIN){
               SETPOINT = aux_i;
           }else{
           printf("ST muy grande:%d\n",SETPOINT);
@@ -99,9 +102,11 @@ void InterpretaComando(void){
        setKD(aux_f);
  			 break;
     case 'F':
+      SETPOINT = 85.0; //Esto hay que sacarlo de aca y setearlo en el interpreta comando
       estado_s = Move_forward;
       break;
     case 'B':
+      SETPOINT = 95.0; //Esto hay que sacarlo de aca y setearlo en el interpreta comando
       estado_s = Move_backward;
       break;
     case 'R':
@@ -204,7 +209,7 @@ int main(void) {
 //---------------   PID    ----------------//
 //-----------------------------------------//
 	setSamplingTime(TP_CONTROL_LOOP); // 5 ms
-	setControllerGains(30, 0.0, 0.70);  //kp -- ki -- kd 0632
+	setControllerGains(10, 0.0, 0.01);  //kp -- ki -- kd 0632
 /*Variables para el control*/
   double AnguloPID;
   double error;
@@ -219,16 +224,16 @@ estado_s = Retain_immobile;
     switch (estado_s) {
       case Start:
           /*MOTOR IZQUIERDO*/
-          setDutyA0(127);
-          setDutyB0(127);
+          setDutyA0(OCRNX_OFF);
+          setDutyB0(OCRNX_OFF);
           /*MOTOR DERECHO */
-          setDutyA2(127);
-          setDutyB2(127);
+          setDutyA2(OCRNX_OFF);
+          setDutyB2(OCRNX_OFF);
           _delay_ms(1);
           break;
       case Move_forward:
           while (flag_timer1) { _delay_us(1);} //Bucle para temporizacion: Espera interrupcion del timer
-          SETPOINT = 85.0; //Esto hay que sacarlo de aca y setearlo en el interpreta comando
+
           /*PID*/
           AnguloPID = getAngulo();
           error =  SETPOINT - AnguloPID;
@@ -237,6 +242,7 @@ estado_s = Retain_immobile;
           /*Saturacion del PWM*/
           if (outPID > OCRNX_MAX) {outPID = OCRNX_MAX;}
           if(outPID < OCRNX_MIN) {outPID = OCRNX_MIN;}
+          if(AnguloPID > ANG_MAX || AnguloPID < ANG_MIN ) outPID = OCRNX_OFF;
 
           OCRnX = (uint8_t) outPID;
 
@@ -251,7 +257,7 @@ estado_s = Retain_immobile;
           break;
       case Move_backward:
           while (flag_timer1) { _delay_us(1);} //Bucle para temporizacion: Espera interrupcion del timer
-          SETPOINT = 95.0; //Esto hay que sacarlo de aca y setearlo en el interpreta comando
+
           /*PID*/
           AnguloPID = getAngulo();
           error =  SETPOINT - AnguloPID;
@@ -260,6 +266,7 @@ estado_s = Retain_immobile;
           /*Saturacion del PWM*/
           if (outPID > OCRNX_MAX) {outPID = OCRNX_MAX;}
           if(outPID < OCRNX_MIN) {outPID = OCRNX_MIN;}
+          if(AnguloPID > ANG_MAX || AnguloPID < ANG_MIN ) outPID = OCRNX_OFF;
 
           OCRnX = (uint8_t) outPID;
 
@@ -282,6 +289,7 @@ estado_s = Retain_immobile;
           /*Saturacion del PWM*/
           if (outPID > OCRNX_MAX) {outPID = OCRNX_MAX;}
           if(outPID < OCRNX_MIN) {outPID = OCRNX_MIN;}
+          if(AnguloPID > ANG_MAX || AnguloPID < ANG_MIN ) outPID = OCRNX_OFF;
 
           OCRnX = (uint8_t) outPID;
 
@@ -304,6 +312,7 @@ estado_s = Retain_immobile;
           /*Saturacion del PWM*/
           if (outPID > OCRNX_MAX) {outPID = OCRNX_MAX;}
           if(outPID < OCRNX_MIN) {outPID = OCRNX_MIN;}
+          if(AnguloPID > ANG_MAX || AnguloPID < ANG_MIN ) outPID = OCRNX_OFF;
 
           OCRnX = (uint8_t) outPID;
 
@@ -326,7 +335,7 @@ estado_s = Retain_immobile;
           /*Saturacion del PWM*/
           if (outPID > OCRNX_MAX) {outPID = OCRNX_MAX;}
           if(outPID < OCRNX_MIN) {outPID = OCRNX_MIN;}
-
+          if(AnguloPID > ANG_MAX || AnguloPID < ANG_MIN ) outPID = OCRNX_OFF;
           OCRnX = (uint8_t) outPID;
           /*MOTOR IZQUIERDO*/
           setDutyA0(OCRnX);
@@ -339,11 +348,11 @@ estado_s = Retain_immobile;
           break;
       case Stop:
           /*MOTOR IZQUIERDO*/
-          setDutyA0(127);
-          setDutyB0(127);
+          setDutyA0(OCRNX_OFF);
+          setDutyB0(OCRNX_OFF);
           /*MOTOR DERECHO */
-          setDutyA2(127);
-          setDutyB2(127);
+          setDutyA2(OCRNX_OFF);
+          setDutyB2(OCRNX_OFF);
           return 0;
       default:
           break;

@@ -13,7 +13,7 @@
 * 2 DC Motors
 * L298N 
 ### Autores ✒️
-* **Coreas Elias** 
+* **Correa Elias** 
 * **Pino Demichelis Jeremias**
 
 

@@ -11,7 +11,7 @@
 *         las consideraciones de movimiento antes mencionadas sonhipoteticas
 * Lenguaje: C
 * Materiales: ATMEGA328p, MPU6050, 2 DC Motors, L298N
-* Autores: Coreas Elias y Pino Jeremias
+* Autores: Correa Elias y Pino Jeremias
 */
 #include <stdint.h>
 #include <stdio.h>

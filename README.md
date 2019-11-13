@@ -1,4 +1,4 @@
-# 🚀 Proyecto Final Microcontroladores y Electronica de Potencia 🚀
+# Proyecto Final Microcontroladores y Electronica de Potencia 
  Se plantea la fabricacion y control de un robot auto balanceado. Aqui, se encuentran los drivers del robot 
 ### Notas 📋 
 * Se planteo un control PID para estabilizar el robot.

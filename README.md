@@ -13,7 +13,7 @@
 * 2 DC Motors
 * L298N 
 ### Autores ✒️
-* **Correa Elias** 
-* **Pino Demichelis Jeremias**
+* **[Correa Elias](https://github.com/Eliasmck)** 
+* **[Pino Demichelis Jeremias](https://github.com/jerepino)**
 
 

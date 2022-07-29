@@ -1,14 +1,16 @@
-#ifndef main_h
-#define main_h
+#ifndef MAIN_H
+#define MAIN_H
 
 #include <stdint.h>
 #include <stdio.h>
 #include <math.h>
+/*---------------------*/
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
+/*---------------------*/
 /*Drivers*/
-#include "timer_uno.h"
+#include "timeUno.h"
 #include "i2c_master.h"
 #include "mpu_6050.h"
 #include "i2c_DEV.h"

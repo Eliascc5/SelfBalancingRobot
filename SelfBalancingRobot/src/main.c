@@ -13,6 +13,7 @@
 * Materiales: ATMEGA328p, MPU6050, 2 DC Motors, L298N
 * Autores: Correa Elias y Pino Jeremias
 */
+
 #include"main.h"
 
 
@@ -44,13 +45,11 @@
 /*CONTROL*/
 #define STATIC_SETPOINT 90.0 		//Para mantenerlo parado. PARA LA ORIENTACION en la que ubicamos el sensor
 volatile float SETPOINT = 90.0; //Para moverlo.
-#define ANG_MAX 130
-#define ANG_MIN 50
+
       // #define FORWARD_SETPOINT 95.0; //Para moverlo hacia adelante.
       // #define BACKWARD_SETPOINT 85.0; //Para moverlo hacia atras.
 
-/*Estados posibles de la maquina de estados*/
-enum tEstados_m{Start, Move_forward, Move_backward, Turn_right, Turn_left, Retain_immobile, Stop}estado_s;
+
 
 /*USART declaracion de tipo stream de E/S y buffer de interpretar comando*/
 FILE uart_io = FDEV_SETUP_STREAM(mi_putc0, mi_getc0, _FDEV_SETUP_RW); // Declara un tipo stream de E/S
@@ -59,33 +58,10 @@ char comando[30]; // buffer de recepción
 
 /*Interrupcion del timer y flag para temporizacion*/
 int flag_timer1 = 1;
-ISR(TIMER1_COMPA_vect){
-    cli();
-    flag_timer1 = 0;
-    TIFR1 &=~ (1<<OCF1A); //apaga flag
-}
 
 
 
-/*Interrupcion recepcion uart*/
-ISR(USART_RX_vect){
-  char dato;
-  dato=getc();
-  switch(dato){
-    case ':': // Delimitador de inicio
-      indcom=0; // Inicializa índice de buffer de recepción
-      break;
-    case 13: // Delimitador de final, retorno de carro
-      comando[indcom]=0; // coloca \0 (caracter nulo) luego del último caracter recibido antes del CR.
-                         //Esto es util para usar atoi o atof que leen hasta el caracter nulo
-      InterpretaComando();// Llama a función intérprete de comandos
-      break;
-    default: // Todo lo que está entre delimitadores,
-      comando[indcom++]=dato; // Guarda en elemento del buffer e incrementa indcom para apuntar a siguiente
-      break;
-  }
-  UCSR0A &=~ (1<<RXC0) ;  //Apago el flag de recepcion completa
-}
+
 
 /*Rutina para inicializar los timers*/
 void Timer_init(void){
@@ -298,4 +274,32 @@ estado_s = Retain_immobile;
 
   }
   return 0;
+}
+
+/*---------Interrupt routine service -------------*/
+
+ISR(TIMER1_COMPA_vect){
+    cli();
+    flag_timer1 = 0;
+    TIFR1 &=~ (1<<OCF1A); //apaga flag
+}
+
+/*Interrupcion recepcion uart*/
+ISR(USART_RX_vect){
+  char dato;
+  dato=getc();
+  switch(dato){
+    case ':': // Delimitador de inicio
+      indcom=0; // Inicializa índice de buffer de recepción
+      break;
+    case 13: // Delimitador de final, retorno de carro
+      comando[indcom]=0; // coloca \0 (caracter nulo) luego del último caracter recibido antes del CR.
+                         //Esto es util para usar atoi o atof que leen hasta el caracter nulo
+      InterpretaComando();// Llama a función intérprete de comandos
+      break;
+    default: // Todo lo que está entre delimitadores,
+      comando[indcom++]=dato; // Guarda en elemento del buffer e incrementa indcom para apuntar a siguiente
+      break;
+  }
+  UCSR0A &=~ (1<<RXC0) ;  //Apago el flag de recepcion completa
 }

@@ -1,11 +1,9 @@
 #ifndef timerUno_h
 #define timerUno_h
 
-
 #include <stdio.h>
 
 uint16_t prescalerValue_T16 = 0;
-
 uint16_t prescalerValue_T8 = 0;
 
 /* Configuracion para timer 16 bits*/

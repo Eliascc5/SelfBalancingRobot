@@ -23,33 +23,13 @@
 // -------------- TIMERS ---------------
 #define TP_CONTROL_LOOP 5   //Periodo en ms para el control del robot
                             // si se cambia hay que cambiarlo en processing_data
-#define OCRNX_MAX 250
-#define OCRNX_MIN 5
-#define OCRNX_GIRO 20       //Para hacer girar el robot
-#define OCRNX_OFF 127
-/* TIMER 0*/
-#define MODE_TIMER0 1        // Phase Correct PWM Mode 1
-#define MODE_OC0A 2          // OUTPUT Compare pin (OC0A) en modo clear 2
-#define MODE_OC0B 3          // OUTPUT Compare pin (OC0B) en modo set 3
-#define PRESCALER_TIMER0 1   // esto nos da un periodo de 0.032ms = (2^8/16Mhz) * 2
-/* TIMER 2*/
-#define MODE_TIMER2 1        // Phase Correct PWM Mode 1
-#define MODE_OC2A 2          // OUTPUT Compare pin (OC2A) en modo clear 2
-#define MODE_OC2B 3          // OUTPUT Compare pin (OC2B) en modo set 3
-#define PRESCALER_TIMER2 1   // esto nos da un periodo de 0.032ms = (2^8/16Mhz) * 2
-/* TIMER 1*/
-#define MODE_TIMER1 4        // CTC Mode 4
-#define MODE_OC1A 0          // OUTPUT Compare pin (OC1A) en modo (toggle 1 - 0 off)
-#define MODE_OC1B 0          // OUTPUT Compare pin (OC1B) en modo off 0
-#define TIEMPO_TIMER1 5      // Tiempo en ms para definir el prescaler
+
 /*CONTROL*/
 #define STATIC_SETPOINT 90.0 		//Para mantenerlo parado. PARA LA ORIENTACION en la que ubicamos el sensor
 volatile float SETPOINT = 90.0; //Para moverlo.
 
       // #define FORWARD_SETPOINT 95.0; //Para moverlo hacia adelante.
       // #define BACKWARD_SETPOINT 85.0; //Para moverlo hacia atras.
-
-
 
 /*USART declaracion de tipo stream de E/S y buffer de interpretar comando*/
 FILE uart_io = FDEV_SETUP_STREAM(mi_putc0, mi_getc0, _FDEV_SETUP_RW); // Declara un tipo stream de E/S
@@ -58,38 +38,6 @@ char comando[30]; // buffer de recepción
 
 /*Interrupcion del timer y flag para temporizacion*/
 int flag_timer1 = 1;
-
-
-
-
-
-/*Rutina para inicializar los timers*/
-void Timer_init(void){
-  //-----------------------------------------//
-  //--------   Timer 8bit 2 para PWM  -------//
-  //-----------------------------------------//
-    D3_salida; B3_salida;
-    confModo_T8(MODE_TIMER2,2);
-    confModoSalidas_T8(MODE_OC2A, MODE_OC2B,2);
-    interrupciones_T8(0,0,0,2);
-    confPrescaler_T8(PRESCALER_TIMER2,2);
-  //-----------------------------------------//
-  //-------- Timer 8bit 0 para PWM    -------//
-  //-----------------------------------------//
-    D6_salida; D5_salida;
-    confModo_T8(MODE_TIMER0,0);
-    confModoSalidas_T8(MODE_OC0A, MODE_OC0B,0);
-    interrupciones_T8(0,0,0,0);
-    confPrescaler_T8(PRESCALER_TIMER0,0);
-  //-----------------------------------------//
-  //---- Timer 16bit para temporizacion  ----//
-  //-----------------------------------------//
-    confModo_T16(MODE_TIMER1);
-    confPrescaler_T16(TIEMPO_TIMER1); // Prescaler = 8 |conprescaler 1 el maximo tiempo 4,096 ms
-    confModoSalidas_T16(MODE_OC1A, MODE_OC1B);
-    interrupciones_T16(0, 1, 0, 0);  //interrupcion por compare match con OC1A
-    setDutyA16(TIEMPO_TIMER1);       //OCR1A = 9999
-}
 
 /*------------------------------------------------------------------------------*/
 int main(void) {
@@ -125,10 +73,10 @@ int main(void) {
 	setSamplingTime(TP_CONTROL_LOOP); // 5 ms
 	setControllerGains(10, 0.0, 0.01);  //kp -- ki -- kd 0632
 /*Variables para el control*/
-  double AnguloPID;
-  double error;
-  double outPID; //Accion de control (salida del pid)
-  uint8_t OCRnX; //variable auxiliar para setear los pwm
+double AnguloPID;
+double error;
+double outPID; //Accion de control (salida del pid)
+uint8_t OCRnX; //variable auxiliar para setear los pwm
 
 /*ESTADO INICIAL*/
 estado_s = Retain_immobile;

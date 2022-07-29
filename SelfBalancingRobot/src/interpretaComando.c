@@ -2,7 +2,6 @@
 #include"interpretaComando.h"
 
 
-
 void InterpretaComando(void){
 	volatile int aux_i;
   volatile double aux_f;

@@ -1,9 +1,4 @@
-#include"timerUno.h"
-#include <avr/interrupt.h>
-#include <avr/io.h>
-#include <stdlib.h>
-#include <stdio.h>
-
+#include "timerUno.h"
 
   /**
   * CSn2 CSn1 CSn0
@@ -547,3 +542,35 @@
         ICR1 = (uint16_t)((T/1000.0)*(F_CPU/prescalerValue_T16)-1); //Numero hasta el cual cuenta para llegar al
                                                                 // tiempo del periodo base del PWM
   }
+
+
+
+
+
+/*Rutina para inicializar los timers*/
+void Timer_init(void){
+  //-----------------------------------------//
+  //--------   Timer 8bit 2 para PWM  -------//
+  //-----------------------------------------//
+    D3_salida; B3_salida;
+    confModo_T8(MODE_TIMER2,2);
+    confModoSalidas_T8(MODE_OC2A, MODE_OC2B,2);
+    interrupciones_T8(0,0,0,2);
+    confPrescaler_T8(PRESCALER_TIMER2,2);
+  //-----------------------------------------//
+  //-------- Timer 8bit 0 para PWM    -------//
+  //-----------------------------------------//
+    D6_salida; D5_salida;
+    confModo_T8(MODE_TIMER0,0);
+    confModoSalidas_T8(MODE_OC0A, MODE_OC0B,0);
+    interrupciones_T8(0,0,0,0);
+    confPrescaler_T8(PRESCALER_TIMER0,0);
+  //-----------------------------------------//
+  //---- Timer 16bit para temporizacion  ----//
+  //-----------------------------------------//
+    confModo_T16(MODE_TIMER1);
+    confPrescaler_T16(TIEMPO_TIMER1); // Prescaler = 8 |conprescaler 1 el maximo tiempo 4,096 ms
+    confModoSalidas_T16(MODE_OC1A, MODE_OC1B);
+    interrupciones_T16(0, 1, 0, 0);  //interrupcion por compare match con OC1A
+    setDutyA16(TIEMPO_TIMER1);       //OCR1A = 9999
+}

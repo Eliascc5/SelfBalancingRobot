@@ -4,8 +4,8 @@
 
 
 void InterpretaComando(void){
-	int aux_i;
-  double aux_f;
+	volatile int aux_i;
+  volatile double aux_f;
 	switch(comando[0]){
     case 'S': //SETPOINT
           aux_i = atoi(&comando[1]); // lee desde el caracter 1 hasta el caracter nulo y lo convierte en int
